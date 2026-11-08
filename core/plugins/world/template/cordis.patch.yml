@@ -1,0 +1,3 @@
+- insert:
+    - id: world-blueprint
+      name: '@you/world-blueprint'

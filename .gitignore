@@ -1,0 +1,15 @@
+node_modules/
+# built by `node build.mjs` (tools/dev-install.sh builds them)
+/core/*/client.js
+/core/plugins/*/client.js
+/packs/*/client.js
+__pycache__/
+*.pyc
+/.claude/worktrees/
+# packed by tools/release.mjs
+/release/
+/core/shell/build.json
+
+# local credentials never belong in source or image contexts
+.env
+.env.*

@@ -1,0 +1,13 @@
+{
+  "name": "@you/world-blueprint",
+  "version": "0.1.0",
+  "description": "A map of my own for Ruyix's interactive desk: a blueprint — white lines on blue paper. Made from @ruyix/world's template.",
+  "keywords": ["dsh", "dsh-plugin", "ruyix", "ruyix-world"],
+  "type": "module",
+  "exports": { ".": "./index.js", "./client": "./client.js", "./package.json": "./package.json" },
+  "dsh": { "bundle": { "patch": "./cordis.patch.yml" }, "client": { "platform": "web" } },
+  "scripts": { "build": "node build.mjs" },
+  "files": ["index.js", "client.js", "cordis.patch.yml"],
+  "peerDependencies": { "@deepseek-ai/dsh": ">=0.2.0-rc.2 <0.3.0", "@ruyix/world": ">=0.1.0" },
+  "devDependencies": { "@ruyix/world": ">=0.1.0", "esbuild": "^0.25.12" }
+}

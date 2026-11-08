@@ -1,0 +1,70 @@
+/* ── the future map: a city of light ── */
+.wd-future { color: rgba(226, 246, 255, .95); letter-spacing: .02em; }
+.wd-future .wd-icon svg { stroke: #9beefb; stroke-width: 2; fill: none; filter: drop-shadow(0 0 2px rgba(34, 211, 238, .95)) drop-shadow(0 0 9px rgba(34, 211, 238, .45)); }
+.wd-future .wd-k-launch .wd-icon svg { stroke: #ff9cc6; filter: drop-shadow(0 0 2px rgba(240, 80, 154, .95)) drop-shadow(0 0 9px rgba(240, 80, 154, .5)); }
+.wd-future .wd-k-post .wd-icon svg { stroke: #ffd38a; filter: drop-shadow(0 0 2px rgba(255, 181, 71, .95)) drop-shadow(0 0 9px rgba(255, 181, 71, .45)); }
+.wd-future .wd-k-capital .wd-icon svg { stroke: #e6fbff; }
+/* each place's picture in its platform's light (future-scene.js placeCol) */
+.wd-future .wd-k-library .wd-icon svg { stroke: #b9afff; filter: drop-shadow(0 0 2px rgba(158, 143, 255, .95)) drop-shadow(0 0 9px rgba(158, 143, 255, .45)); }
+.wd-future .wd-k-guild .wd-icon svg { stroke: #8ff7d0; filter: drop-shadow(0 0 2px rgba(77, 242, 184, .95)) drop-shadow(0 0 9px rgba(77, 242, 184, .45)); }
+.wd-future .wd-k-port .wd-icon svg { stroke: #9cc2ff; filter: drop-shadow(0 0 2px rgba(89, 153, 255, .95)) drop-shadow(0 0 9px rgba(89, 153, 255, .45)); }
+.wd-future .wd-k-fort .wd-icon svg { stroke: #9ff7b6; filter: drop-shadow(0 0 2px rgba(102, 242, 140, .95)) drop-shadow(0 0 9px rgba(102, 242, 140, .45)); }
+.wd-future .wd-k-archive .wd-icon svg { stroke: #d2caf7; filter: drop-shadow(0 0 2px rgba(184, 173, 242, .95)) drop-shadow(0 0 9px rgba(184, 173, 242, .45)); }
+.wd-future .wd-k-settings .wd-icon svg { stroke: #e3eeff; filter: drop-shadow(0 0 2px rgba(209, 230, 255, .95)) drop-shadow(0 0 9px rgba(209, 230, 255, .45)); }
+.wd-future .wd-k-gate .wd-icon svg { stroke: #ff9fd0; filter: drop-shadow(0 0 2px rgba(255, 107, 184, .95)) drop-shadow(0 0 9px rgba(255, 107, 184, .45)); }
+.wd-future .wd-icon-own { color: #9beefb; }
+.wd-future .wd-name { top: 47px; }
+.wd-future .wd-k-capital .wd-name { top: 70px; }
+.wd-future .wd-k-launch .wd-name { top: 46px; }
+.wd-future .wd-name b { font-weight: var(--ruyix-weight-semibold); letter-spacing: .08em; }
+.wd-future .wd-name span { color: #8fb6c6; opacity: 1; }
+.wd-future .wd-name, .wd-future .wd-task { text-shadow: 0 1px 8px rgba(0, 6, 14, .95), 0 0 2px rgba(0, 6, 14, .9); }
+.wd-future .wd-task span { font-family: ui-monospace, "SF Mono", Menlo, monospace; color: #8fd8e6; }
+.wd-future .wd-wait span { color: #ffc56b; opacity: 1; font-weight: var(--ruyix-weight-medium); }
+.wd-future .wd-count { background: #ffb547; color: #1a1205; box-shadow: 0 0 12px rgba(255, 181, 71, .8); }
+.wd-future .wd-tip { background: rgba(4, 12, 22, .94); color: #dff6ff; box-shadow: 0 0 0 1px rgba(34, 211, 238, .45), 0 0 18px rgba(34, 211, 238, .15), 0 8px 24px rgba(0, 0, 0, .55); }
+.wd-future .wd-hud button { background: rgba(4, 14, 26, .78); color: #c9f3fb; box-shadow: inset 0 0 0 1px rgba(34, 211, 238, .4); backdrop-filter: blur(8px); letter-spacing: .06em; }
+.wd-future .wd-hud button:hover { background: rgba(10, 34, 52, .9); box-shadow: inset 0 0 0 1px rgba(34, 211, 238, .75), 0 0 14px rgba(34, 211, 238, .3); }
+.wd-future .wd-hud .wd-on { background: rgba(244, 114, 182, .2); color: #ffd1ea; box-shadow: inset 0 0 0 1px rgba(244, 114, 182, .85), 0 0 16px rgba(244, 114, 182, .45); }
+.wd-future .wd-cartouche { color: #dff8ff; text-shadow: 0 0 14px rgba(34, 211, 238, .65); }
+.wd-future .wd-cartouche span { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-weight: 300; }
+.wd-future .wd-k-launch .wd-name b { color: #ffb3d3; }
+
+/* its windows: a thin line of light round them, corners marked, a dark glass title bar */
+.ad-root[data-world="future"] :is(.ad-win, .ad-xwin) { box-shadow: 0 0 0 1px rgba(34, 211, 238, .55), 0 0 28px rgba(34, 211, 238, .18), 0 26px 70px rgba(0, 0, 0, .6); }
+.ad-root[data-world="future"] :is(.ad-win, .ad-xwin)::after { content: ""; position: absolute; inset: -4px; pointer-events: none; z-index: 5;
+  background: linear-gradient(#22d3ee, #22d3ee) top left / 14px 2px, linear-gradient(#22d3ee, #22d3ee) top left / 2px 14px,
+    linear-gradient(#22d3ee, #22d3ee) top right / 14px 2px, linear-gradient(#22d3ee, #22d3ee) top right / 2px 14px,
+    linear-gradient(#22d3ee, #22d3ee) bottom left / 14px 2px, linear-gradient(#22d3ee, #22d3ee) bottom left / 2px 14px,
+    linear-gradient(#22d3ee, #22d3ee) bottom right / 14px 2px, linear-gradient(#22d3ee, #22d3ee) bottom right / 2px 14px;
+  background-repeat: no-repeat; filter: drop-shadow(0 0 4px rgba(34, 211, 238, .8)); }
+.ad-root[data-world="future"] :is(.ad-win, .ad-xwin) .ad-titlebar { background: linear-gradient(180deg, rgba(8, 22, 36, .97), rgba(4, 12, 22, .97)); color: #cdf6ff; border-bottom: 1px solid rgba(34, 211, 238, .35); }
+.ad-root[data-world="future"] :is(.ad-win, .ad-xwin) .ad-title { color: #dff8ff; letter-spacing: .06em; }
+/* windows one sees the map through (desktop.json transparency): the title bar too */
+:root[data-ruyix-see] .ad-root[data-world="future"] :is(.ad-win, .ad-xwin) .ad-titlebar { background: color-mix(in srgb, rgb(6, 17, 29) var(--ad-see-card), transparent); }
+
+/* a place is its platform: no picture on it, no count (a beacon sweeps where something waits); the platform answers the
+   pointer (it is sized in the page's pixels, as this button is), and its name shows only then, below it */
+.wd-future .wd-place:not(.wd-k-clock) .wd-pic { left: -46px; top: -46px; width: 92px; height: 92px; border-radius: 50%; corner-shape: round; transform: none; }
+.wd-future .wd-k-capital .wd-pic { left: -62px; top: -62px; width: 124px; height: 124px; }
+.wd-future .wd-place:not(.wd-k-clock) :is(.wd-icon, .wd-count) { display: none; }
+.wd-future .wd-place:not(.wd-k-clock) .wd-name { opacity: 0; transition: opacity .2s ease; }
+.wd-future .wd-place:is(:hover, :focus-visible, .wd-hot) .wd-name { opacity: 1; }
+.wd-future .wd-place:focus-visible { outline: none; }
+.wd-future .wd-task :is(b, span) { opacity: 0; transition: opacity .2s ease; }
+.wd-future .wd-task:is(:hover, :focus-visible, .wd-hot) :is(b, span) { opacity: 1; }
+/* what is done and not looked at, beside the records' place */
+.wd-future .wd-done { background: rgba(4, 14, 26, .92); color: #cdf6ff; box-shadow: inset 0 0 0 1px rgba(34, 211, 238, .45), 0 0 22px rgba(34, 211, 238, .18); backdrop-filter: blur(10px); }
+.wd-future .wd-done button:hover { background: rgba(34, 211, 238, .12); }
+.wd-future .wd-done-dot { background: #5ef0b0; box-shadow: 0 0 8px rgba(94, 240, 176, .8); }
+/* the open things' groups (the shell's cards at the left), in this map's material */
+.ad-root[data-world="future"] :is(.ad-group-card, .ad-group-list) { background: rgba(4, 14, 26, .86); color: #cdf6ff; box-shadow: inset 0 0 0 1px rgba(34, 211, 238, .4), 0 0 18px rgba(34, 211, 238, .12); backdrop-filter: blur(10px); }
+.ad-root[data-world="future"] .ad-group.ad-on .ad-group-card { box-shadow: inset 0 0 0 1.5px rgba(34, 211, 238, .95), 0 0 20px rgba(34, 211, 238, .35); }
+/* the work going on (the shell's strip, under the cards), in this map's material */
+.ad-root[data-world="future"] :is(.ad-ly-lane, .ad-dn-w, .ad-strip-pop) { background: rgba(4, 14, 26, .82); color: #cdf6ff; box-shadow: inset 0 0 0 1px rgba(34, 211, 238, .38), 0 0 18px rgba(34, 211, 238, .12); backdrop-filter: blur(10px); }
+.ad-root[data-world="future"] .ad-strip { --ad-text: #cdf6ff; --ad-text-2: #7fb3c4; }
+.ad-root[data-world="future"] .ad-ly-line { font-family: var(--ruyix-font-mono); letter-spacing: .02em; }
+.ad-root[data-world="future"] .ad-ly-line:not(.ad-ly-old) { text-shadow: 0 0 8px rgba(34, 211, 238, .55); }
+.ad-root[data-world="future"] .ad-strip-h { color: #7fe6f5; text-transform: uppercase; letter-spacing: .12em; }
+/* the version, small in the corner, in this map's lettering */
+.ad-root[data-world="future"] .wd-version { color: #7fe6f5; font-family: var(--ruyix-font-mono); letter-spacing: .08em; text-transform: uppercase; }

@@ -1,0 +1,746 @@
+#!/usr/bin/env bash
+# ruyix — install, run and upgrade Ruyix (dsh + the @ruyix plugins) on this machine.
+#
+#   ruyix install [pack ...] [--no-browsers] [--version <v>]   a dsh profile with the shell, the connectors, Agent Hub and
+#                            the packs (nookbox: the box plugin): the latest release, or <v> (needs RUYIX_REGISTRY;
+#                            from source: tools/dev-install.mjs)
+#   ruyix start | stop | restart [--force] | status
+#   ruyix busy                 what is at work: exit 0 (and the list), 1 nothing, 2 cannot tell (a host's upgrade waits for 1)
+#   ruyix link                 the sign-in link for a new browser (it changes whenever dsh restarts)
+#   ruyix migrate              an install from when Ruyix was Aviary or Agnos moves over (every command does it first)
+#   ruyix upgrade [--version <v>] [--registry <url>] [--force]   the plugins to the latest release (or <v>: also a
+#                            rollback) and dsh to the version that release was tested with; waits for nothing to be at
+#                            work unless --force. In a box: into this home, over the image's (ruyix upgrade --image: back)
+#   ruyix setup [--no-browsers]   each plugin's setup.sh (install and upgrade run it)
+#   ruyix plugin add <@scope/name>@<version> --integrity <sha512-…> [--registry <url>] [--id <id>] [--on-host] [--force]
+#                            a plugin from its npm tarball, installed only when that has the given sha512;
+#                            a third-party plugin goes in a box unless --on-host. Waits for nothing to be at work, restarts
+#   ruyix plugin remove <@scope/name> [--force]   a plugin this home added (~/.ruyix/plugins.json)
+#   ruyix plugin list | enable <name> | disable <name> | default <name> [--force]
+#                            which plugins load (~/.ruyix/layout.json): each is on unless its package says it is off by
+#                            default; applied at every start, so a running Ruyix restarts
+#   ruyix check                what this machine needs, checked — nothing is installed (install runs it first)
+#   ruyix config export [--out ruyix-config.json] [--secrets ruyix-secrets.env]   this setup as a file (and its values)
+#   ruyix config import <ruyix-config.json> [--secrets ruyix-secrets.env]   apply it: workspaces, settings, teams, credentials
+#   ruyix changes [show <id> | undo [<id>] | restore <id>]   the changes made to this Ruyix's sidebar, name, theme and boards
+#                            (~/.ruyix/changes): list, show, undo, go back — for when its page is hard to use (applying is the page's)
+#   ruyix desk [keys | themes | theme <id> | set <key>=<value> … | widget add <type> [sm|md] | widget remove <id> | reset]
+#                            how this Ruyix looks as a desktop (~/.ruyix/desktop.json): read it, or propose a change the person
+#                            applies on the page (--summary "…", --wait [s]) — for the person and for any agent with a shell
+#   ruyix data export [--out ruyix-data.tar.gz] | import <file> [--replace]   the run history (runs, evidence, the
+#                            conversations and what they remember, Agent Hub's sessions and jobs) to another machine or a box;
+#                            the import takes this home's paths
+#   ruyix chat threads | memories | export [--thread ID] [--out FILE]   the conversations the workbench keeps: list them,
+#                            what they remember, one as Markdown (without --thread, everything as JSON lines)
+#   ruyix session list | attach <id | its title's start>   the pool's sessions; attach mirrors one in this terminal — its
+#                            conversation as it goes, what you type is sent to it (in a box, every session also has a window
+#                            in tmux -L ruyix attach -t ruyix-agents, and a tab in Zellij's session ruyix-agents)
+#   ruyix mcp [--as <name>]   this Ruyix as an MCP server (stdio) for any agent: its system tools — open apps, pages and
+#                            files, what is open, tasks, sessions, studios, the desk (Agent Hub gives it to every agent it
+#                            starts). Claude Code on the Mac: claude mcp add ruyix -- nookbox exec --stdio ruyix -- ruyix mcp --as "Claude Code"
+#
+# Settings: ~/.ruyix/config (written on install, shell syntax). RUYIX_REGISTRY, the npm registry releases come from, is
+# set by hand: install, upgrade and status's release check say so when it is missing, the rest works (Ruyix is installed
+# from source by default: tools/dev-install.mjs). All packages of a release share one version; the shell's
+# package.json names the dsh it was tested with ("ruyix": { "dsh": … }), so dsh moves with our releases.
+# In the Ruyix image (RUYIX_IMAGE=/opt/ruyix, image/Dockerfile) dsh and the plugins come with the image:
+# ruyix start points ~/.dsh/profiles/ruyix at them and runs each release's setup once; a newer image is the upgrade. A box
+# may also run a release of its own: ruyix upgrade installs it into the home (it outlives the image), ruyix runs it while it
+# is not older than the image's, and a newer image takes over again.
+set -euo pipefail
+
+RUYIX_HOME=${RUYIX_HOME:-$HOME/.ruyix}
+DSH_HOME=${DSH_HOME:-$HOME/.dsh}
+SCOPE=@ruyix
+SHELL_PKG=$SCOPE/shell
+HERE=''
+if [ -n "${BASH_SOURCE[0]:-}" ]; then HERE=$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/.." && pwd); fi
+
+say() { printf '\n\033[1;34m▸ %s\033[0m\n' "$*"; }
+ok() { printf '  ✓ %s\n' "$*"; }
+warn() { printf '\033[1;33m  ! %s\033[0m\n' "$*"; }
+die() { printf '\033[1;31m✗ %s\033[0m\n' "$*" >&2; exit 1; }
+
+load_config() {
+  # defaults (the environment may set any of them first, e.g. for a test); the config file has the last word
+  : "${RUYIX_PROFILE:=ruyix}" "${RUYIX_PORT:=3280}" "${RUYIX_TRUSTED_HOST:=}" "${RUYIX_LOG:=$RUYIX_HOME/dsh-web.log}"
+  : "${RUYIX_REGISTRY:=}" "${RUYIX_URL:=}"
+  # shellcheck disable=SC1091
+  [ -f "$RUYIX_HOME/config" ] && . "$RUYIX_HOME/config"
+  [[ "$RUYIX_PROFILE" =~ ^[a-zA-Z0-9][a-zA-Z0-9._-]*$ ]] || die "invalid profile name"
+  [[ "$RUYIX_PORT" =~ ^[0-9]+$ ]] && [ "$RUYIX_PORT" -ge 1 ] && [ "$RUYIX_PORT" -le 65535 ] || die "invalid port"
+  PD=$DSH_HOME/profiles/$RUYIX_PROFILE
+}
+
+write_config() {
+  [ -f "$RUYIX_HOME/config" ] && return
+  mkdir -p "$RUYIX_HOME"
+  local ts='' url='' reg='# RUYIX_REGISTRY=https://npm.example/'
+  [ -z "$RUYIX_REGISTRY" ] || reg=RUYIX_REGISTRY=$RUYIX_REGISTRY
+  command -v tailscale >/dev/null && ts=$(tailscale status --json 2>/dev/null | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{try{process.stdout.write(JSON.parse(s).Self.DNSName.replace(/\.$/,""))}catch{}})' || true)
+  [ -n "$ts" ] && url=https://$ts/
+  cat > "$RUYIX_HOME/config" <<EOF
+# Ruyix — read by ruyix (shell syntax).
+RUYIX_PROFILE=$RUYIX_PROFILE          # the dsh profile under $DSH_HOME/profiles
+RUYIX_PORT=$RUYIX_PORT
+RUYIX_TRUSTED_HOST=${RUYIX_TRUSTED_HOST:-$ts}      # a name the browser may use besides localhost (e.g. this machine's Tailscale name)
+RUYIX_URL=${RUYIX_URL:-$url}      # the address other devices open (e.g. tailscale serve → 127.0.0.1:$RUYIX_PORT); ruyix link prints its link
+RUYIX_LOG=$RUYIX_LOG
+$reg      # the npm registry the @ruyix releases come from (ruyix install / upgrade / status)
+EOF
+  ok "settings: $RUYIX_HOME/config"
+}
+
+# The dsh to run: the image's own when it is exactly version $1, else npx fetches that version
+dsh_cmd() {
+  local d=${RUYIX_IMAGE:+$RUYIX_IMAGE/dsh}
+  if [ -n "$d" ] && [ "$(node -p "require('$d/node_modules/@deepseek-ai/dsh/package.json').version" 2>/dev/null)" = "$1" ]
+  then printf '%s\n' "$d/node_modules/.bin/dsh"; else printf '%s\n' npx -y "@deepseek-ai/dsh@$1"; fi
+}
+dsh() {
+  local v=$1 cmd; shift; [ -n "$v" ] || die "no dsh version: ruyix runs only the dsh a release was tested with"
+  # a plugin change resolved afresh: pnpm 11.28 refuses a lockfile written elsewhere (the image's build, an older pnpm) —
+  # "entries that pnpm cannot verify" (an upgrade's saved profile keeps its own, to roll back)
+  if [ "${1:-}" = plugin ] && [[ " $* " =~ \ (add|remove)\  ]]; then rm -f "$PD/pnpm-lock.yaml"; fi
+  cmd=(); while IFS= read -r _l; do cmd+=("$_l"); done < <(dsh_cmd "$v"); (cd ~ && "${cmd[@]}" "$@")
+}
+# The image's own profile, and the release in it
+image_pd() { printf '%s' "$RUYIX_IMAGE/dsh-home/profiles/$RUYIX_PROFILE"; }
+version_in() { node -p "require('$1/node_modules/$SHELL_PKG/package.json').version" 2>/dev/null || true; }
+# a release this home installed over the image's (ruyix upgrade in a box): the profile's plugins are its own
+own_release() { [ -n "${RUYIX_IMAGE:-}" ] && [ -d "$PD/node_modules" ] && [ ! -L "$PD/node_modules" ]; }
+# true when release $1 is newer than $2, in semver order (a pre-release comes before its release)
+newer() {
+  node -e 'const p = v => { const [c, ...r] = String(v).split("-"); return [c.split(".").map(Number), r.join("-")] }
+    const [[a, ap], [b, bp]] = [p(process.argv[1]), p(process.argv[2])]
+    for (let i = 0; i < 3; i++) if (a[i] !== b[i]) process.exit(a[i] > b[i] ? 0 : 1)
+    if (ap === bp || !bp) process.exit(1)
+    if (!ap) process.exit(0)
+    const [x, y] = [ap.split("."), bp.split(".")]
+    for (let i = 0; i < Math.max(x.length, y.length); i++) {
+      if (x[i] === y[i]) continue
+      if (x[i] === undefined || y[i] === undefined) process.exit(x[i] === undefined ? 1 : 0)
+      const n = /^\d+$/.test(x[i]) && /^\d+$/.test(y[i])
+      process.exit((n ? Number(x[i]) > Number(y[i]) : x[i] > y[i]) ? 0 : 1)
+    }
+    process.exit(1)' "$1" "$2"
+}
+# The image's plugins (read-only) behind the profile in ~/.dsh, which keeps your patch layer and what dsh writes — or
+# the release this home installed over them, while the image's is not newer
+image_profile() {
+  local ip mine theirs
+  ip=$(image_pd)
+  [ -d "$ip/node_modules" ] || die "RUYIX_IMAGE=$RUYIX_IMAGE has no profile $RUYIX_PROFILE"
+  mkdir -p "$PD"
+  if own_release; then
+    mine=$(version_in "$PD") theirs=$(version_in "$ip")
+    if [ -n "$mine" ] && ! newer "$theirs" "$mine"; then write_config; return; fi
+    warn "the image's release $theirs is newer than this home's ${mine:-(broken)}: running the image's"
+    rm -rf "$PD/node_modules"
+  fi
+  image_link
+  [ -f "$PD/cordis.patch.yml" ] || [ ! -f "$ip/cordis.patch.yml" ] || cp "$ip/cordis.patch.yml" "$PD/cordis.patch.yml"
+  write_config
+  added_reinstall
+}
+image_link() {
+  local ip f; ip=$(image_pd)
+  ln -sfn "$ip/node_modules" "$PD/node_modules"
+  for f in package.json pnpm-lock.yaml pnpm-workspace.yaml; do [ ! -f "$ip/$f" ] || cp "$ip/$f" "$PD/$f"; done
+}
+# ── plugins added with ruyix plugin add (ruyix-plugin.mjs keeps the record and the tarballs) ──
+mplug() { node "$HERE/bin/ruyix-plugin.mjs" "$1" "$RUYIX_HOME" "${@:2}"; }
+# the registry this profile takes a scope's packages from, or nothing
+scope_registry() { { sed -n "s|^$1:registry=||p" "$PD/.npmrc" 2>/dev/null || true; } | tail -1; }
+# each recorded plugin's scope reaches its own registry, as when it was installed (their dependencies come from there)
+scope_registries() {
+  local scope reg
+  while read -r scope reg; do
+    [ -n "$scope" ] && ! grep -qs "^$scope:registry=" "$PD/.npmrc" && echo "$scope:registry=$reg" >> "$PD/.npmrc"
+  done < <(mplug registries)
+  [ -z "$RUYIX_REGISTRY" ] || grep -qs "^$SCOPE:registry=" "$PD/.npmrc" || echo "$SCOPE:registry=$RUYIX_REGISTRY" >> "$PD/.npmrc"
+}
+# The image's profile is read-only: a box with added plugins runs its image's release installed into this home, with
+# the recorded plugins from their kept tarballs (after an image change too — they never vanish with an upgrade). When
+# that fails, the image's release runs without them.
+added_reinstall() {
+  local files ver dshv
+  [ -L "$PD/node_modules" ] || return 0
+  files=(); while IFS= read -r _l; do files+=("$_l"); done < <(mplug files)
+  [ ${#files[@]} -gt 0 ] || return 0
+  ver=$(installed_version) dshv=$(tested_dsh)
+  say "Added plugins over the image's release $ver"
+  scope_registries
+  rm "$PD/node_modules"
+  # shellcheck disable=SC2046
+  if dsh "$dshv" plugin --profile "$RUYIX_PROFILE" add $(our_packages | awk -v v="$ver" '{print $1 "@" v}') "${files[@]}" >/dev/null; then ok "$(mplug list | tr '\n' ' ')"
+  else
+    warn "could not put the added plugins back (ruyix plugin list): running the image's release without them"
+    rm -rf "$PD/node_modules"; image_link
+  fi
+}
+cmd_plugin() {
+  local sub=${1:-list}; shift || true
+  case "$sub" in
+    add) plugin_add "$@" ;;
+    remove) plugin_remove "$@" ;;
+    enable|disable|default) plugin_toggle "$sub" "$@" ;;
+    list) mplug state "$PD"; mplug list | sed 's/^/added: /' ;;
+    *) die "ruyix plugin list | enable | disable | default | add | remove" ;;
+  esac
+}
+# A profile change while dsh may be running: nothing at work (unless --force), a copy to go back to, dsh stopped; then
+# the change ($@), and dsh as it was — or the copy back when the change fails.
+profile_change() {
+  local force=$1 what=$2 was=0 backup cur; shift 2
+  cur=$(installed_version)
+  [ -n "$cur" ] || die "not installed in profile $RUYIX_PROFILE: ruyix install"
+  if running; then was=1; require_idle "$what" "$force"; fi
+  backup=$(mktemp -d "$DSH_HOME/profiles/.ruyix-rollback.XXXXXX")
+  cp -a "$PD" "$backup/profile" || { rm -rf "$backup"; die "cannot save the current profile; nothing was changed"; }
+  if [ "$was" = 1 ]; then cmd_stop; fi
+  if ! "$@"; then rollback_upgrade "$backup" "$was" "$cur"; die "$what failed; profile restored"; fi
+  rm -rf "$backup"
+  if [ "$was" = 1 ]; then cmd_start; fi
+  return 0
+}
+# A plugin on or off (or back to its default), in this home's layout: it applies at start, so a running ruyix restarts
+plugin_toggle() {
+  local what=$1 to pkg='' force=0 a name; shift
+  for a in "$@"; do case "$a" in --force) force=1 ;; -*) die "unknown option $a" ;; *) pkg=$a ;; esac; done
+  [ -n "$pkg" ] || die "ruyix plugin $what <name>"
+  case "$what" in enable) to=on ;; disable) to=off ;; *) to=default ;; esac
+  if running; then require_idle "plugin $what" "$force"; fi
+  name=$(mplug toggle "$PD" "$pkg" "$to") || exit 1
+  ok "$name: $to"
+  if running; then cmd_stop; cmd_start; fi
+}
+plugin_add() {
+  local spec='' pkg ver integrity='' registry='' id='' host=0 force=0 file
+  while [ $# -gt 0 ]; do case "$1" in
+    --integrity) [ $# -ge 2 ] || die "--integrity needs the tarball's sha512"; integrity=$2; shift ;;
+    --registry) [ $# -ge 2 ] || die "--registry needs a URL"; registry=$2; shift ;;
+    --id) [ $# -ge 2 ] || die "--id needs an id to record with the plugin"; id=$2; shift ;;
+    --on-host) host=1 ;; --force) force=1 ;; -*) die "unknown option $1" ;; *) spec=$1 ;;
+  esac; shift; done
+  pkg=${spec%@*} ver=${spec##*@}
+  [[ "$spec" == @*/*@* && "$pkg" =~ ^@[a-z0-9][a-z0-9._-]*/[a-z0-9][a-z0-9._-]*$ && "$ver" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || die "ruyix plugin add <@scope/name>@<major.minor.patch> --integrity <sha512-…>"
+  [[ "$integrity" =~ ^sha512-[A-Za-z0-9+/]{86}==$ ]] || die "--integrity: the sha512 of $spec's tarball (sha512-…)"
+  local scope=${pkg%%/*}
+  # third-party code reaches no host credential in a box (nookbox keeps them on the host): there by default
+  if [ "$scope" != "$SCOPE" ] && [ -z "${RUYIX_IMAGE:-}" ] && [ "$host" = 0 ]; then
+    die "$pkg is a third-party plugin: install it in a box (nookbox), or here with --on-host"
+  fi
+  local had; had=$(scope_registry "$scope")
+  [ -n "$registry" ] || registry=$had
+  [ -n "$registry" ] || [ "$scope" != "$SCOPE" ] || registry=$RUYIX_REGISTRY
+  [ -n "$registry" ] || die "--registry: the npm registry $scope's packages come from"
+  [ -z "$had" ] || [ "$had" = "$registry" ] || die "$scope comes from $had in this profile, not $registry"
+  say "Plugin $spec"
+  file=$(mplug fetch "$pkg" "$ver" "$integrity" "$registry" "$PD") || die "could not fetch $spec with that sha512"
+  ok "fetched from $registry, sha512 matches"
+  profile_change "$force" "plugin add" plugin_install "$pkg" "$ver" "$scope" "$registry" "$file" "$integrity" "$id"
+  ok "$spec installed ($(mplug list | grep -c .) added plugin(s): ruyix plugin list)"
+}
+plugin_install() {
+  local pkg=$1 ver=$2 scope=$3 registry=$4 file=$5 integrity=$6 id=$7 dshv specs=() others
+  dshv=$(tested_dsh)
+  grep -qs "^$scope:registry=" "$PD/.npmrc" || echo "$scope:registry=$registry" >> "$PD/.npmrc"
+  # a box on its image's read-only profile: this home installs that release, with every added plugin
+  if [ -n "${RUYIX_IMAGE:-}" ] && [ -L "$PD/node_modules" ]; then
+    others=(); while IFS= read -r _l; do others+=("$_l"); done < <(mplug files | grep -v "^$RUYIX_HOME/plugins/$pkg/")
+    specs=(); while IFS= read -r _l; do specs+=("$_l"); done < <(our_packages | awk -v v="$(installed_version)" '{print $1 "@" v}')
+    specs+=(${others[@]+"${others[@]}"})
+    scope_registries
+    rm "$PD/node_modules"
+  fi
+  dsh "$dshv" plugin --profile "$RUYIX_PROFILE" add ${specs[@]+"${specs[@]}"} "$file" >/dev/null || { warn "dsh could not add $pkg@$ver (above)"; return 1; }
+  mplug installed "$PD" "$pkg" "$ver" || { warn "$pkg is not at $ver after the install"; return 1; }
+  # The profile change is committed before restart; its record must already agree if startup fails.
+  mplug set "$pkg" "$ver" "$integrity" "$registry" "$file" "$id"
+}
+plugin_remove() {
+  local pkg='' force=0
+  for a in "$@"; do case "$a" in --force) force=1 ;; -*) die "unknown option $a" ;; *) pkg=$a ;; esac; done
+  [ -n "$pkg" ] || die "ruyix plugin remove <@scope/name>"
+  mplug has "$pkg" || die "$pkg was not added to this home with ruyix plugin add (ruyix plugin list)"
+  profile_change "$force" "plugin remove" plugin_uninstall "$pkg"
+  ok "$pkg removed"
+}
+plugin_uninstall() {
+  local pkg=$1
+  dsh "$(tested_dsh)" plugin --profile "$RUYIX_PROFILE" remove "$pkg" || return 1
+  mplug del "$pkg"
+}
+# releases are looked up past npm's cache: a registry may answer a cached copy's revalidation with "not modified"
+# while it has a newer release (GitLab's does), and the upgrade would not see it
+need_registry() {
+  [ -n "$RUYIX_REGISTRY" ] || die "no npm registry for releases is configured: set RUYIX_REGISTRY in $RUYIX_HOME/config, or install from source with tools/dev-install.mjs"
+}
+view() { local c; [ -n "$RUYIX_REGISTRY" ] || return 0; c=$(mktemp -d); { npm view "$1" "$2" --registry "$RUYIX_REGISTRY" --cache "$c" 2>/dev/null || true; } | tail -1; rm -rf "$c"; }
+# The dsh a release was tested with, from the release itself: registries keep only package.json's standard fields
+# (GitLab drops "ruyix"), so it is read from the package's own tarball.
+release_info() { # <version> <js of r, the release's "ruyix" block>
+  local tmp v=''
+  tmp=$(mktemp -d)
+  if (cd "$tmp" && npm pack "$SHELL_PKG@$1" --registry "$RUYIX_REGISTRY" --cache "$tmp/.npm" >/dev/null 2>&1) && tar -xzf "$tmp"/*.tgz -C "$tmp" package/package.json 2>/dev/null; then
+    v=$(node -p "const r = require('$tmp/package/package.json').ruyix || {}; $2" 2>/dev/null || true)
+  fi
+  rm -rf "$tmp"
+  printf '%s' "$v"
+}
+release_dsh() { release_info "$1" "r.dsh || ''"; }
+# the plugins the release's box image carries (core/shell/package.json ruyix.packages), names of our scope only
+release_packages() { release_info "$1" "(Array.isArray(r.packages) ? r.packages : []).filter(n => /^$SCOPE\\/[a-z0-9][a-z0-9-]*\$/.test(n)).join(' ')"; }
+installed_version() { node -p "require('$PD/node_modules/$SHELL_PKG/package.json').version" 2>/dev/null || true; }
+tested_dsh() { node -p "require('$PD/node_modules/$SHELL_PKG/package.json').ruyix.dsh" 2>/dev/null || true; }
+# the profile's own @ruyix packages (the cores come with them) and how they are installed
+our_packages() { node -e "const d=require('$PD/package.json').dependencies||{};for(const[k,v]of Object.entries(d))if(k.startsWith('$SCOPE/'))console.log(k,v)" 2>/dev/null || true; }
+
+running() { curl -s -o /dev/null --max-time 3 "http://127.0.0.1:$RUYIX_PORT/"; }
+# GET an /api path as the browser does: the launch token in dsh's log buys a session cookie
+api() {
+  local tok jar out
+  tok=$(grep -o 'token=[A-Za-z0-9_-]*' "$RUYIX_LOG" 2>/dev/null | tail -1) || true
+  [ -n "$tok" ] || return 1
+  jar=$(mktemp); chmod 600 "$jar"
+  curl -s -o /dev/null -c "$jar" --max-time 10 "http://127.0.0.1:$RUYIX_PORT/?$tok" &&
+    out=$(curl -sf -b "$jar" --max-time 10 "http://127.0.0.1:$RUYIX_PORT$1") || { rm -f "$jar"; return 1; }
+  rm -f "$jar"; printf '%s' "$out"
+}
+# what a restart would cut short (runs, approvals, Agent Hub tasks); fails when dsh cannot be asked
+busy() { api /api/ruyix/busy | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{for(const b of JSON.parse(s).busy)console.log(b)})' 2>/dev/null; }
+owned_pid() { api /api/ruyix/identity | node "$HERE/bin/ruyix-process.mjs" owned "$RUYIX_PROFILE" "$RUYIX_HOME/dsh.pid"; }
+require_idle() {
+  local action=$1 force=$2 b
+  owned_pid >/dev/null || die "port $RUYIX_PORT is not this Ruyix profile; refusing to $action"
+  if ! b=$(busy); then [ "$force" = 1 ] || die "cannot ask Ruyix what is at work: ruyix $action --force to restart anyway"
+  elif [ -n "$b" ]; then
+    printf '%s\n' "$b" | sed 's/^/    /'
+    [ "$force" = 1 ] || die "these would be cut short: try again when they are done, or --force"
+  fi
+}
+
+cmd_setup() {
+  local flags=() s failures=()
+  for s in "$@"; do case "$s" in --no-browsers) flags+=("$s") ;; *) die "unknown setup option $s" ;; esac; done
+  [ -f "$PD/package.json" ] || die "no profile $PD: run ruyix install first"
+  say "Setup"
+  local patch=$PD/cordis.patch.yml
+  [ -f "$patch" ] || printf '# Your patch layer for this dsh profile: a top-level YAML array of loader patch entries.\n[]\n' > "$patch"
+  # every app reaches its services through the connectors plugin: a profile without it gets it here, at the release's
+  # version (an image's profile has it from its install)
+  if [ -z "${RUYIX_IMAGE:-}" ] && ! our_packages | grep -q "^$SCOPE/connectors "; then
+    if our_packages | grep -q ' link:'; then warn "add the connectors plugin: tools/dev-install.sh in your checkout"
+    elif dsh "$(tested_dsh)" plugin --profile "$RUYIX_PROFILE" add "$SCOPE/connectors@$(installed_version)" >/dev/null; then ok "connectors plugin added (the Connections page)"
+    else failures+=(connectors); warn "could not add $SCOPE/connectors"; fi
+  fi
+  for s in "$PD"/node_modules/$SCOPE/*/setup.sh; do
+    [ -f "$s" ] || continue
+    printf '  · %s\n' "$(basename "$(dirname "$s")")"
+    if ! bash "$s" ${flags[@]+"${flags[@]}"}; then failures+=("$(basename "$(dirname "$s")")"); warn "$s failed"; fi
+  done
+  [ ${#failures[@]} -eq 0 ] || { warn "setup incomplete: ${failures[*]}; fix the errors and run ruyix setup again"; return 1; }
+  return 0
+}
+
+# What this machine needs, checked; nothing is installed. A missing must-have fails (install stops), the rest are notes.
+cmd_check() {
+  local miss=0 c
+  say "This machine"
+  # a missing must-have on stderr, where a failed install's reason is read
+  if ! command -v node >/dev/null; then warn "Node.js 22.5 or newer is needed" >&2; miss=1
+  elif node -e 'const [a,b]=process.versions.node.split(".").map(Number);process.exit(a>22||(a===22&&b>=5)?0:1)'; then ok "Node.js $(node -v)"
+  else warn "Node $(node -v) is too old: 22.5+ is needed" >&2; miss=1; fi
+  for c in npm git python3; do
+    if command -v "$c" >/dev/null; then ok "$c"; else warn "$c is needed" >&2; miss=1; fi
+  done
+  # optional: each serves some of the work, and Get started says what is missing when it matters
+  for c in "claude:agents on Claude Code" "codex:agents on Codex" "docker:the box and containerized checks"; do
+    if command -v "${c%%:*}" >/dev/null; then ok "${c%%:*}"; else printf '  · %s not found — %s\n' "${c%%:*}" "${c#*:}"; fi
+  done
+  if command -v codex >/dev/null && ! codex sandbox -- true >/dev/null 2>&1; then
+    warn "Codex's sandbox (bubblewrap) cannot start here: read/write Codex members are refused (Ubuntu: sudo sysctl kernel.apparmor_restrict_unprivileged_userns=0)"
+  fi
+  return $miss
+}
+
+cmd_install() {
+  cmd_check || die "install what is missing above, then run ruyix install again"
+  need_registry
+  pnpm -v >/dev/null 2>&1 || npm install -g pnpm@11 --no-audit --no-fund --loglevel=error >/dev/null 2>&1 || true
+  pnpm -v >/dev/null 2>&1 || die "pnpm is needed: npm install -g pnpm@11"
+  write_config; load_config
+  local ver='' dshv p out flags=() packs=() setup=1
+  while [ $# -gt 0 ]; do case "$1" in
+    --version) [ $# -ge 2 ] || die "--version needs a release version"; ver=$2; shift ;;
+    --no-setup) setup=0 ;; --*) flags+=("$1") ;; *) packs+=("$1") ;;
+  esac; shift; done
+  [ -n "$ver" ] || ver=$(view "$SHELL_PKG" version)
+  [ -n "$ver" ] || die "cannot read $SHELL_PKG from $RUYIX_REGISTRY (network, or a private registry needs a token in ~/.npmrc)"
+  dshv=$(release_dsh "$ver")
+  [ -n "$dshv" ] || die "cannot read the dsh release $ver was tested with"
+  say "Ruyix $ver on dsh $dshv (profile $RUYIX_PROFILE)"
+  if [ ! -f "$PD/package.json" ]; then
+    dsh "$dshv" --profile "$RUYIX_PROFILE" --from-default-profile web --dump-config >/dev/null || die "dsh could not create profile $RUYIX_PROFILE"
+    ok "profile $PD"
+  fi
+  [ -z "$RUYIX_REGISTRY" ] || grep -qs "^$SCOPE:registry=" "$PD/.npmrc" || echo "$SCOPE:registry=$RUYIX_REGISTRY" >> "$PD/.npmrc"
+  # dsh's agent team, as in its web profile with teams
+  node -e "const f='$PD/package.json',p=require(f),b=p.dsh.profile.bundles,t='@deepseek-ai/dsh-experimental-agent-team-profile';if(!b.includes(t)){b.splice(b.indexOf('@deepseek-ai/dsh-web-app')+1,0,t);require('fs').writeFileSync(f,JSON.stringify(p,null,2)+'\n')}"
+  # the shell, the connections every app reaches its services through, the workbench, Agent Hub; then the packs asked for
+  local specs=("$SHELL_PKG@$ver" "$SCOPE/connectors@$ver" "$SCOPE/workbench@$ver" "$SCOPE/agent-hub@$ver" "$SCOPE/board@$ver") names=()
+  for p in ${packs[@]+"${packs[@]}"}; do
+    case "$p" in nookbox|box) specs+=("$SCOPE/box@$ver"); names+=(box) ;; *) die "unknown pack $p (nookbox)" ;; esac
+  done
+  dsh "$dshv" plugin --profile "$RUYIX_PROFILE" add "${specs[@]}" >/dev/null || die "dsh could not add ${specs[*]}"
+  # a pack named here is on, even one off by default
+  for p in ${names[@]+"${names[@]}"}; do
+    out=$(mplug toggle "$PD" "$p" on 2>&1) || case "$out" in *"always on"*) ;; *) warn "$p may stay off: ${out#✗ } (ruyix plugin enable $p)" ;; esac
+  done
+  ok "${specs[*]}"
+  mkdir -p "$HOME/.local/bin" && ln -sfn "$PD/node_modules/$SHELL_PKG/bin/ruyix" "$HOME/.local/bin/ruyix" && ok "ruyix → ~/.local/bin/ruyix"
+  case ":$PATH:" in *":$HOME/.local/bin:"*) ;; *) warn "~/.local/bin is not on your PATH: add  export PATH=\"\$HOME/.local/bin:\$PATH\"  to your shell profile" ;; esac
+  # an image runs setup in each user's home at first start, not at build time
+  [ "$setup" = 0 ] || "$PD/node_modules/$SHELL_PKG/bin/ruyix" setup ${flags[@]+"${flags[@]}"}
+  say "Done — ruyix start"
+}
+
+# Ruyix's own skill (skills/ruyix-desktop: how to change how it looks) where the agents with a shell in the box find
+# skills of their own — Claude Code's ~/.claude/skills, Codex's ~/.codex/skills, the shared ~/.agents/skills — through
+# the profile, so it is the running release's. A folder of that name made by hand is left alone; only a link is renewed.
+link_skills() {
+  local src=$PD/node_modules/$SHELL_PKG/skills/ruyix-desktop d
+  [ -f "$src/SKILL.md" ] || return 0
+  for d in "$HOME/.claude/skills" "$HOME/.codex/skills" "$HOME/.agents/skills"; do
+    if [ -L "$d/ruyix-desktop" ] || [ ! -e "$d/ruyix-desktop" ]; then mkdir -p "$d" && ln -sfn "$src" "$d/ruyix-desktop"; fi
+  done
+}
+cmd_start() {
+  load_config
+  if running; then
+    owned_pid >/dev/null || die "port $RUYIX_PORT belongs to another service or profile; choose another port"
+    ok "already running on port $RUYIX_PORT"; return
+  fi
+  if [ -n "${RUYIX_IMAGE:-}" ]; then
+    image_profile
+    # a configuration nookbox placed (nookbox up --config): taken in when it changed; its credentials are the box's
+    # placeholders, the real values on the host
+    local imp=$RUYIX_HOME/import.json
+    if [ -f "$imp" ] && ! cmp -s "$imp" "$RUYIX_HOME/import.applied.json"; then
+      if node "$HERE/bin/ruyix-config.mjs" import "$imp"; then cp "$imp" "$RUYIX_HOME/import.applied.json"
+      else warn "the configuration in $imp did not apply fully (above); ruyix config import $imp to retry"; fi
+    fi
+    # dsh puts its first workspace in the Documents folder a desktop names (xdg-user-dir); a box has no desktop
+    local ud="${XDG_CONFIG_HOME:-$HOME/.config}/user-dirs.dirs"
+    [ -f "$ud" ] || { mkdir -p "$(dirname "$ud")" "$HOME/Documents" && echo 'XDG_DOCUMENTS_DIR="$HOME/Documents"' > "$ud"; }
+    local done_mark; done_mark="$RUYIX_HOME/setup-$(installed_version)"
+    if [ ! -f "$done_mark" ]; then cmd_setup && touch "$done_mark" || warn "setup incomplete: ruyix setup to retry; starting anyway"; fi
+    link_skills
+  fi
+  local dshv; dshv=$(tested_dsh)
+  [ -n "$dshv" ] || die "Ruyix is not installed in profile $RUYIX_PROFILE: ruyix install"
+  # the plugins this home turned on or off (an install, an upgrade or an image change rewrites the profile's list)
+  local plugs; plugs=$(mplug apply "$PD") || warn "could not apply the plugin layout (ruyix plugin list)"
+  [ -z "$plugs" ] || ok "plugins: $plugs"
+  mkdir -p "$RUYIX_HOME" "$(dirname "$RUYIX_LOG")"
+  # the home and the log (it holds the sign-in link) are this user's alone: another account on the machine reads neither
+  chmod 700 "$RUYIX_HOME" 2>/dev/null || true
+  : > "$RUYIX_LOG" && chmod 600 "$RUYIX_LOG"
+  local args=(--profile "$RUYIX_PROFILE" --no-open --port "$RUYIX_PORT")
+  [ -n "$RUYIX_TRUSTED_HOST" ] && args+=(--trusted-host "$RUYIX_TRUSTED_HOST")
+  # in a box: the host's Tailscale name too (any port), so a page opened through `tailscale serve` is this Ruyix's own
+  local reach; reach=$(box_reach)
+  [ -n "$reach" ] && [ "${reach%% *}" != "$RUYIX_TRUSTED_HOST" ] && args+=(--trusted-host "${reach%% *}")
+  # its own session, away from this terminal; the pid is the session's, so stop takes dsh and its children together
+  cd ~
+  # the plugins read this home and its log where ruyix keeps them (the layout), as configured
+  export RUYIX_HOME RUYIX_LOG
+  local cmd; cmd=(); while IFS= read -r _l; do cmd+=("$_l"); done < <(dsh_cmd "$dshv")
+  if command -v setsid >/dev/null; then setsid nohup "${cmd[@]}" "${args[@]}" > "$RUYIX_LOG" 2>&1 < /dev/null &
+  else nohup "${cmd[@]}" "${args[@]}" > "$RUYIX_LOG" 2>&1 < /dev/null & fi
+  node "$HERE/bin/ruyix-process.mjs" remember "$RUYIX_PROFILE" "$!" "$RUYIX_HOME/dsh.pid"
+  for _ in $(seq 120); do owned_pid >/dev/null 2>&1 && break; sleep 1; done
+  if ! owned_pid >/dev/null 2>&1; then
+    local started; started=$(cat "$RUYIX_HOME/dsh.pid")
+    node "$HERE/bin/ruyix-process.mjs" signal "$RUYIX_PROFILE" "$started" SIGTERM || warn "could not safely stop the incomplete startup"
+    sleep 1
+    node "$HERE/bin/ruyix-process.mjs" signal "$RUYIX_PROFILE" "$started" SIGKILL || warn "could not safely finish stopping the incomplete startup"
+    die "Ruyix did not become ready with the expected process identity (log: $RUYIX_LOG)"
+  fi
+  ok "Ruyix $(installed_version) on dsh $dshv: http://127.0.0.1:$RUYIX_PORT/"
+  # dsh answers on its port a moment before it logs the sign-in link
+  for _ in $(seq 30); do grep -q 'token=' "$RUYIX_LOG" 2>/dev/null && break; sleep 1; done
+  printf '  a new browser signs in once with (ruyix link prints it again):\n'
+  cmd_link | sed 's/^/    /' || true
+}
+
+cmd_link() {
+  running || die "not running: ruyix start"
+  owned_pid >/dev/null || die "port $RUYIX_PORT is not this Ruyix profile"
+  local tok
+  tok=$(grep -o 'token=[A-Za-z0-9_-]*' "$RUYIX_LOG" 2>/dev/null | tail -1) || true
+  [ -n "$tok" ] || die "no sign-in link in $RUYIX_LOG (was dsh started by ruyix start?)"
+  printf 'http://127.0.0.1:%s/?%s\n' "$RUYIX_PORT" "$tok"
+  # the address other devices open: the configured one, else (in a box) the `tailscale serve` address on this Ruyix's port
+  local url=$RUYIX_URL reach
+  [ -n "$url" ] || { reach=$(box_reach); url=${reach#* }; [ "$url" != "$reach" ] || url=''; }
+  [ -z "$url" ] || printf '%s?%s\n' "${url%/}/" "$tok"
+}
+
+# In a nookbox box: "<the host's Tailscale name> <the https address tailscale serve sends to this Ruyix's port>" (either may
+# be missing; nothing at all outside a box or without Tailscale). The box's own window says it (nookbox 0.5.8).
+box_reach() {
+  [ -n "${NOOKBOX_API:-}" ] || return 0
+  node -e '
+    fetch(process.argv[1].replace(/\/$/, "") + "/v1/box", { signal: AbortSignal.timeout(8000) }).then(r => r.json()).then(b => {
+      const t = b.host?.tailscale; if (!/^[a-z0-9][a-z0-9.-]{0,252}$/.test(t?.dns_name || "")) return
+      const at = (t.https || []).find(x => String(x.guest) === process.argv[2])
+      process.stdout.write(t.dns_name + (at ? " " + at.url : ""))
+    }, () => {})' "$NOOKBOX_API" "$RUYIX_PORT" 2>/dev/null || true
+}
+
+cmd_stop() {
+  load_config
+  running || { ok "not running"; return; }
+  local target
+  target=$(owned_pid) || die "cannot verify Ruyix’s process and profile; refusing to stop port $RUYIX_PORT"
+  node "$HERE/bin/ruyix-process.mjs" signal "$RUYIX_PROFILE" "$target" SIGTERM || die "process identity changed; refusing to stop it"
+  for _ in $(seq 30); do running || break; sleep 1; done
+  if running; then node "$HERE/bin/ruyix-process.mjs" signal "$RUYIX_PROFILE" "$target" SIGKILL || die "process identity changed; refusing to kill it"; sleep 1; fi
+  running && die "port $RUYIX_PORT still answers; no other process was stopped"
+  rm -f "$RUYIX_HOME/dsh.pid"
+  ok "stopped"
+}
+
+cmd_restart() {
+  local force=0 flag
+  for flag in "$@"; do case "$flag" in --force) force=1 ;; *) die "unknown restart option $flag" ;; esac; done
+  load_config
+  if running; then require_idle restart "$force"; fi
+  cmd_stop
+  cmd_start
+}
+
+cmd_status() {
+  load_config
+  local ver latest b
+  ver=$(installed_version)
+  [ -n "$ver" ] || { warn "not installed in profile $RUYIX_PROFILE (ruyix install)"; return; }
+  ok "installed: Ruyix $ver, tested with dsh $(tested_dsh) — profile $RUYIX_PROFILE"
+  our_packages | sed 's/^/    /'
+  latest=$(view "$SHELL_PKG" version)
+  if own_release; then ok "installed in this home over the image's $(version_in "$(image_pd)") (ruyix upgrade --image goes back)"
+  elif [ -n "${RUYIX_IMAGE:-}" ]; then ok "comes with its image (a newer image, or ruyix upgrade into this home)"; fi
+  if [ -z "$RUYIX_REGISTRY" ]; then printf '  · no npm registry for releases is configured (RUYIX_REGISTRY in %s/config): not looking for a newer release\n' "$RUYIX_HOME"
+  elif [ -z "$latest" ]; then warn "no release found in $RUYIX_REGISTRY (not reachable, nothing published yet, or a token is needed)"
+  elif newer "$latest" "$ver"; then warn "release $latest is out: ruyix upgrade"
+  elif [ "$latest" = "$ver" ]; then ok "the latest release"
+  else ok "ahead of the latest release ($latest)"; fi
+  if running && owned_pid >/dev/null 2>&1; then
+    ok "running on port $RUYIX_PORT"
+    if b=$(busy); then [ -z "$b" ] && ok "nothing at work" || { warn "at work:"; printf '%s\n' "$b" | sed 's/^/    /'; }
+    else warn "cannot ask dsh what is at work (no launch token in $RUYIX_LOG)"; fi
+  elif running; then warn "port $RUYIX_PORT belongs to another service or cannot be verified"
+  else ok "not running"; fi
+}
+
+rollback_upgrade() {
+  local backup=$1 was=$2 cur=$3
+  if running; then cmd_stop || die "cannot stop the failed release safely; recovery copy: $backup/profile"; fi
+  mv "$PD" "$backup/failed" && mv "$backup/profile" "$PD" || die "profile recovery failed; recovery copy: $backup"
+  if [ "$was" = 1 ]; then
+    "$PD/node_modules/$SHELL_PKG/bin/ruyix" start || die "profile $cur restored, but it could not start; check $RUYIX_LOG"
+  fi
+  rm -rf "$backup"
+  warn "restored profile $cur"
+}
+
+cmd_upgrade() {
+  load_config
+  local target='' force=0 image=0 registry=''
+  while [ $# -gt 0 ]; do case "$1" in
+    --version) [ $# -ge 2 ] || die "--version needs a release version"; target=$2; shift ;;
+    --registry) [ $# -ge 2 ] || die "--registry needs a URL"; registry=$2; RUYIX_REGISTRY=$2; shift ;; # e.g. a local test registry
+    --image) image=1 ;; --force) force=1 ;; *) die "unknown option $1" ;;
+  esac; shift; done
+  local cur pkgs dshv was=0 backup
+  if [ "$image" = 1 ]; then # a box back on its image's release; this home's is removed
+    [ -n "${RUYIX_IMAGE:-}" ] || die "--image is for a box: this Ruyix does not come with an image"
+    own_release || { ok "already on the image's release $(version_in "$(image_pd)")"; return; }
+    if running; then was=1; require_idle upgrade "$force"; cmd_stop; fi
+    rm -rf "$PD/node_modules"
+    image_profile
+    ok "back to the image's release $(installed_version)"
+    if [ "$was" = 1 ]; then "$PD/node_modules/$SHELL_PKG/bin/ruyix" start; fi
+    return 0
+  fi
+  cur=$(installed_version)
+  [ -n "$cur" ] || die "not installed in profile $RUYIX_PROFILE: ruyix install"
+  need_registry
+  pkgs=$(our_packages)
+  # plugins linked from a source checkout are upgraded there; a box's image links its own release (into $RUYIX_IMAGE),
+  # which is what a release installed into this home goes over
+  local src
+  src=$(printf '%s\n' "$pkgs" | awk '$2 ~ /^link:/ { sub(/^link:/, "", $2); print $2 }' | { if [ -n "${RUYIX_IMAGE:-}" ]; then grep -v "^$RUYIX_IMAGE/" || true; else cat; fi; } | head -1)
+  [ -z "$src" ] || die "profile $RUYIX_PROFILE runs the plugins from a source checkout ($src): upgrade with git pull and tools/dev-install.sh there"
+  [ -n "$target" ] || target=$(view "$SHELL_PKG" version)
+  [ -n "$target" ] || die "cannot read the latest release from $RUYIX_REGISTRY"
+  if [ "$target" = "$cur" ] && [ "$force" = 0 ]; then ok "already on $cur"; return; fi
+  dshv=$(release_dsh "$target")
+  [ -n "$dshv" ] || die "release $target not found (or it does not name the dsh it was tested with)"
+  say "Ruyix $cur → $target (dsh $(tested_dsh) → $dshv)"
+  # in a box, what the release's image carries comes along — plugins new in it too (0.4.0: Video, Newsletter);
+  # elsewhere only the ones installed here (another one: ruyix plugin add)
+  if [ -n "${RUYIX_IMAGE:-}" ]; then
+    local p have new=''
+    have=$(printf '%s\n' "$pkgs" | awk '{print $1}')
+    for p in $(release_packages "$target"); do printf '%s\n' "$have" | grep -qxF "$p" || new="$new $p"; done
+    if [ -n "$new" ]; then pkgs=$(printf '%s\n' "$pkgs"; for p in $new; do printf '%s new\n' "$p"; done); ok "new in $target:$new"; fi
+  fi
+  # the added plugins come along, each to the newer version its record names, if any (fetched before the stop)
+  local added=()
+  added=(); while IFS= read -r _l; do added+=("$_l"); done < <(mplug upgrade "$PD")
+  if running; then
+    was=1
+    require_idle upgrade "$force"
+  fi
+  backup=$(mktemp -d "$DSH_HOME/profiles/.ruyix-rollback.XXXXXX")
+  cp -a "$PD" "$backup/profile" || { rm -rf "$backup"; die "cannot save the current profile; upgrade was not started"; }
+  if [ "$was" = 1 ]; then cmd_stop; fi
+  [ -z "$registry" ] || RUYIX_REGISTRY=$registry # stopping read the config file again
+  # the registry the release comes from; in a box, the image's plugins make way for this home's own install
+  { grep -v "^$SCOPE:registry=" "$PD/.npmrc" 2>/dev/null || true; echo "$SCOPE:registry=$RUYIX_REGISTRY"; } > "$PD/.npmrc.next" && mv "$PD/.npmrc.next" "$PD/.npmrc"
+  scope_registries
+  if [ -n "${RUYIX_IMAGE:-}" ] && [ -L "$PD/node_modules" ]; then rm "$PD/node_modules"; fi
+  # shellcheck disable=SC2046
+  if ! dsh "$dshv" plugin --profile "$RUYIX_PROFILE" add $(printf '%s\n' "$pkgs" | awk -v v="$target" '{print $1 "@" v}') ${added[@]+"${added[@]}"} >/dev/null; then
+    rollback_upgrade "$backup" "$was" "$cur"
+    die "dsh could not install $target; profile $cur restored"
+  fi
+  ok "plugins $target"
+  # this script was replaced too: the new one finishes
+  local next=$PD/node_modules/$SHELL_PKG/bin/ruyix
+  if ! "$next" setup; then
+    rollback_upgrade "$backup" "$was" "$cur"
+    die "release $target setup failed; profile $cur restored"
+  fi
+  if [ "$was" = 1 ] && ! "$next" start; then
+    rollback_upgrade "$backup" "$was" "$cur"
+    die "release $target did not start; profile $cur restored"
+  fi
+  rm -rf "$backup"
+  # the record moves to what is installed now — only once nothing can roll back to the tarballs it replaces
+  [ ${#added[@]} -eq 0 ] || { mplug settle "$PD"; ok "added plugins: $(mplug list | tr '\n' ' ')"; }
+  ok "upgrade complete: $target"
+  return 0
+}
+
+# Ruyix was called Aviary until 2026-10-16, then Agnos for a day. What an older install left moves over, each part on its
+# own so one cut short is finished the next time: its home (~/.agnos, else ~/.aviary) becomes ~/.ruyix — the old name
+# left as a link to it, for the paths the databases recorded; its settings take the new names; its dsh profile (your patch
+# layer) becomes ruyix. Nothing moves while that install's dsh still runs (it would lose its files under it).
+from_old() {
+  [ "$RUYIX_HOME" = "$HOME/.ruyix" ] || return 0
+  local was='' w old target
+  # the newest older name still here: a home that is not ours yet, or its profile
+  for w in agnos aviary; do
+    if { [ -e "$HOME/.$w" ] || [ -L "$HOME/.$w" ]; } && [ "$(readlink "$HOME/.$w" 2>/dev/null)" != .ruyix ] || [ -d "$DSH_HOME/profiles/$w" ]; then was=$w; break; fi
+  done
+  if [ -n "$was" ]; then
+    old=$HOME/.$was
+    if [ -f "$old/dsh.pid" ] && node "$HERE/bin/ruyix-process.mjs" alive "$was" "$old/dsh.pid" 2>/dev/null; then
+      warn "the $was install's dsh still runs ($was stop): its home moves to $RUYIX_HOME once it is stopped"; return 0
+    fi
+    # 1. the home: moved whole while there is no ~/.ruyix; else (an install or nookbox made one first) what it lacks is moved
+    #    in, what it has stays, and what is left of the old home is kept beside it; a link to a home elsewhere is followed
+    if [ -L "$old" ]; then
+      target=$(readlink "$old")
+      if [ ! -e "$RUYIX_HOME" ] && [ ! -L "$RUYIX_HOME" ]; then ln -s "$target" "$RUYIX_HOME" && rm "$old" && ln -s .ruyix "$old"
+      else warn "$old links to $target and $RUYIX_HOME is there too: move what you need by hand"; fi
+    elif [ -d "$old" ]; then
+      if [ ! -e "$RUYIX_HOME" ] && [ ! -L "$RUYIX_HOME" ]; then mv "$old" "$RUYIX_HOME"
+      else
+        node -e '
+          const fs = require("fs"), path = require("path")
+          // the home and its parts (workbench/, agent-hub/ …): a folder deeper down that both have stays whole where it is
+          const into = (from, to, depth = 0) => { for (const n of fs.readdirSync(from)) {
+            const a = path.join(from, n), b = path.join(to, n), sa = fs.lstatSync(a), sb = fs.lstatSync(b, { throwIfNoEntry: false })
+            if (!sb) fs.renameSync(a, b)
+            else if (depth === 0 && sa.isDirectory() && sb.isDirectory() && !sa.isSymbolicLink() && !sb.isSymbolicLink()) { into(a, b, 1); try { fs.rmdirSync(a) } catch {} }
+          } }
+          into(process.argv[1], process.argv[2])' "$old" "$RUYIX_HOME" || return 0
+        rmdir "$old" 2>/dev/null || mv "$old" "$HOME/.$was-left-$(date +%Y%m%d%H%M%S)"
+      fi
+      [ -e "$old" ] || ln -s .ruyix "$old"
+    fi
+    # 2. the dsh profile; one made for ruyix already (an install) takes the old patch layer when it has none
+    if [ -d "$DSH_HOME/profiles/$was" ]; then
+      if [ ! -e "$DSH_HOME/profiles/ruyix" ]; then mv "$DSH_HOME/profiles/$was" "$DSH_HOME/profiles/ruyix"
+      else
+        [ -f "$DSH_HOME/profiles/ruyix/cordis.patch.yml" ] || [ ! -f "$DSH_HOME/profiles/$was/cordis.patch.yml" ] || cp "$DSH_HOME/profiles/$was/cordis.patch.yml" "$DSH_HOME/profiles/ruyix/"
+        mv "$DSH_HOME/profiles/$was" "$DSH_HOME/profiles/$was.moved"
+      fi
+    fi
+    ok "the $was install is Ruyix's now: $RUYIX_HOME"
+  fi
+  # 3. the settings (whenever they still have an old name: a move cut short last time too) — only the settings' names,
+  #    the profile's, the home's own path and the comments; a path elsewhere keeps its words
+  local f=$RUYIX_HOME/config
+  [ -f "$f" ] && grep -Eqs '^[[:space:]]*(export[[:space:]]+)?(AGNOS|AVIARY)_' "$f" || return 0
+  node -e '
+    const fs = require("fs"), f = process.argv[1]
+    const word = w => new RegExp(`\\b${w}\\b`, "g")
+    const said = c => ["agnos", "aviary"].reduce((t, w) => t.replace(new RegExp(`\\b${w.toUpperCase()}_`, "g"), "RUYIX_").replace(word(w), "ruyix").replace(word(w[0].toUpperCase() + w.slice(1)), "Ruyix"), c)
+    const line = l => {
+      if (/^\s*#/.test(l)) return said(l)
+      const m = l.match(/^(\s*(?:export\s+)?)(AGNOS|AVIARY)_(\w+=)(.*)$/)
+      if (!m) return l
+      let [, pre, was, key, rest] = m, at = rest.search(/\s#/), value = at < 0 ? rest : rest.slice(0, at), note = at < 0 ? "" : rest.slice(at)
+      const pad = value.match(/\s*$/)[0]
+      value = value.slice(0, value.length - pad.length); note = pad + note; was = was.toLowerCase()
+      if (key === "PROFILE=") value = value.replace(new RegExp(`^(["\x27]?)${was}\\1$`), "$1ruyix$1")
+      value = value.replaceAll(`/.${was}/`, "/.ruyix/").replace(new RegExp(`/\\.${was}(["\x27]?)$`), "/.ruyix$1")
+      return `${pre}RUYIX_${key}${value}${said(note)}`
+    }
+    fs.writeFileSync(f, fs.readFileSync(f, "utf8").split("\n").map(line).join("\n"))' "$f"
+}
+
+main() {
+  # run as `npx -p @ruyix/shell ruyix …`, npx's own choices would reach the npx and pnpm runs
+  # below (which package to run, from which registry): they are not ours
+  unset npm_config_package npm_config_registry
+  from_old
+  load_config
+  # in a box running a release of this home's own (ruyix upgrade), that release's ruyix does the work
+  local mine=$PD/node_modules/$SHELL_PKG/bin/ruyix
+  if [ -z "${RUYIX_HANDED_OVER:-}" ] && own_release && [ -x "$mine" ] && [ "$(readlink -f "$mine")" != "$(readlink -f "${BASH_SOURCE[0]}")" ] &&
+    ! newer "$(version_in "$(image_pd)")" "$(version_in "$PD")"; then RUYIX_HANDED_OVER=1 exec "$mine" "$@"; fi
+  case "${1:-help}" in
+    install) shift; cmd_install "$@" ;;
+    setup) shift; cmd_setup "$@" ;;
+    check) cmd_check ;;
+    config) shift; node "$HERE/bin/ruyix-config.mjs" "$@" ;;
+    changes) shift; node "$HERE/bin/ruyix-changes.mjs" "$@" ;;
+    desk) shift; node "$HERE/bin/ruyix-desk.mjs" "$@" ;;
+    data) shift
+      if [ "${1:-}" = import ] && running; then die "stop Ruyix first (ruyix stop): the import replaces the databases it has open"; fi
+      node --disable-warning=ExperimentalWarning "$HERE/bin/ruyix-data.mjs" "$@" ;;
+    chat) shift; node --disable-warning=ExperimentalWarning "$HERE/bin/ruyix-chat.mjs" "$@" ;;
+    session) shift; node "$HERE/bin/ruyix-session.mjs" "$@" ;;
+    mcp) shift; exec node "$HERE/bin/ruyix-mcp.mjs" "$@" ;;
+    start) cmd_start ;;
+    stop) cmd_stop ;;
+    restart) shift; cmd_restart "$@" ;;
+    status) cmd_status ;;
+    busy) b=$(busy) || exit 2; [ -n "$b" ] || exit 1; printf '%s\n' "$b" ;;
+    link) cmd_link ;;
+    migrate) ;; # (done above: from_old)
+    upgrade) shift; cmd_upgrade "$@" ;;
+    plugin) shift; cmd_plugin "$@" ;;
+    -V|--version) installed_version ;;
+    *) awk 'NR > 1 && /^#/ { sub(/^# ?/, ""); print; next } NR > 1 { exit }' "$0" ;;
+  esac
+}
+# the whole file is read before anything runs: an upgrade replaces it mid-way
+if [ -z "${BASH_SOURCE[0]:-}" ] || [ "${BASH_SOURCE[0]}" = "$0" ]; then main "$@"; exit; fi

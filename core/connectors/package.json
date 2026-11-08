@@ -1,0 +1,59 @@
+{
+  "name": "@ruyix/connectors",
+  "version": "0.4.0",
+  "description": "Connections to the services Ruyix reaches — GitLab, Kubernetes, any HTTP API: one place to add, test and sign in; credentials in dsh's store; the products reach the services only through it. Part of Ruyix, the agent OS built on DSH (DeepSeek Harness).",
+  "keywords": [
+    "dsh",
+    "dsh-plugin",
+    "deepseek-harness",
+    "ruyix",
+    "agent-os"
+  ],
+  "type": "module",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ethannortharc/ruyix.git",
+    "directory": "core/connectors"
+  },
+  "exports": {
+    ".": "./index.js",
+    "./client": "./client.js",
+    "./package.json": "./package.json",
+    "./locale/*.json": "./locale/*.json",
+    "./lib/*": "./lib/*"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "inject": [
+        "@deepseek-ai/dsh-client-locale",
+        "@deepseek-ai/dsh-client-ui-layout",
+        "@deepseek-ai/dsh-client-ui-sidebar"
+      ]
+    }
+  },
+  "scripts": {
+    "build": "node build.mjs",
+    "check": "node check.mjs"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.12",
+    "lucide-react": "^1.49.0"
+  },
+  "files": [
+    "index.js",
+    "client.js",
+    "cordis.patch.yml",
+    "locale",
+    "lib",
+    "README.md",
+    "setup.sh"
+  ],
+  "peerDependencies": {
+    "@deepseek-ai/dsh": ">=0.2.0-rc.2 <0.3.0"
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "name": "@ruyix/studio",
+  "version": "0.4.0",
+  "description": "Studios: one end-to-end line of work (what to make, how, with what, what came of it) pulled out of the whole system, with a home page of its own — records, materials, starting a workflow from a record. Part of Ruyix, the agent OS built on DSH (DeepSeek Harness).",
+  "keywords": [
+    "dsh",
+    "dsh-plugin",
+    "deepseek-harness",
+    "ruyix",
+    "agent-os"
+  ],
+  "type": "module",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ethannortharc/ruyix.git",
+    "directory": "core/plugins/studio"
+  },
+  "exports": {
+    ".": "./index.js",
+    "./client": "./client.js",
+    "./package.json": "./package.json",
+    "./declare": "./lib/declare.js"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "inject": [
+        "@deepseek-ai/dsh-client-locale",
+        "@deepseek-ai/dsh-client-ui-layout",
+        "@deepseek-ai/dsh-client-ui-sidebar"
+      ]
+    }
+  },
+  "scripts": {
+    "build": "node build.mjs",
+    "check": "node check.mjs && node feedback-check.mjs && node feedback-ui-check.mjs && node file-check.mjs"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.12",
+    "lucide-react": "^1.49.0"
+  },
+  "files": [
+    "index.js",
+    "client.js",
+    "cordis.patch.yml",
+    "lib",
+    "README.md"
+  ],
+  "peerDependencies": {
+    "@deepseek-ai/dsh": ">=0.2.0-rc.2 <0.3.0"
+  }
+}

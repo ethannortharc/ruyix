@@ -1,0 +1,166 @@
+.ap-page { display: flex; flex-direction: column; height: 100%; min-height: 0; overflow: hidden; container-type: inline-size;
+  color: var(--ruyix-text); background: var(--ruyix-canvas); font-size: var(--ruyix-text-md); line-height: 1.5; }
+.ap-page *, .ap-vnc * { box-sizing: border-box; }
+.ap-page :is(h1, h2, h3) { color: var(--ruyix-title); }
+.ap-sub { color: var(--ruyix-text-dim); font-size: var(--ruyix-text-sm); margin: 0; }
+.ap-grow { flex: 1; }
+.ap-page code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .92em; color: var(--ruyix-text-muted); overflow-wrap: anywhere; }
+.ap-spin { animation: ap-spin 1s linear infinite; }
+@keyframes ap-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .ap-spin { animation-duration: 3s; } }
+
+/* header */
+.ap-header { display: flex; align-items: center; gap: var(--ruyix-space-12); flex-wrap: wrap; padding: calc(var(--ruyix-space-14) + var(--dsh-frame-top-clearance, 0px)) var(--ruyix-space-20) var(--ruyix-space-14);
+  border-bottom: .5px solid var(--ruyix-line); background: var(--ruyix-surface); }
+.ap-header h1 { margin: 0; font-size: var(--ruyix-text-xl); font-weight: var(--ruyix-weight-bold); }
+.ap-head-text { min-width: 0; }
+.ap-glyph { width: 36px; height: 36px; flex: none; border-radius: var(--ruyix-radius); display: inline-flex; align-items: center; justify-content: center; color: #fff;
+  background: linear-gradient(135deg, var(--ruyix-accent), var(--ruyix-accent-alt)); box-shadow: 0 6px 16px -8px var(--ruyix-accent-alt); }
+.ap-seg { display: inline-flex; align-items: center; gap: 2px; padding: 2px; border-radius: var(--ruyix-radius-sm); background: var(--ruyix-surface-sunk);
+  box-shadow: inset 0 0 0 .5px var(--ruyix-line); font-size: var(--ruyix-text-sm); }
+.ap-seg-label { padding: 0 var(--ruyix-space-6) 0 var(--ruyix-space-8); color: var(--ruyix-text-dim); }
+.ap-seg button { height: var(--ruyix-control-sm); padding: 0 var(--ruyix-control-pad-sm); border: 0; border-radius: var(--ruyix-radius-xs); background: none; color: var(--ruyix-text-muted); font: inherit; font-weight: var(--ruyix-weight-medium); cursor: pointer;
+  transition: background .12s, color .12s, box-shadow .12s; }
+.ap-seg button:hover { color: var(--ruyix-text); }
+.ap-seg button.on { color: var(--ruyix-title); background: var(--ruyix-surface); box-shadow: 0 0 0 .5px var(--ruyix-line), 0 1px 2px light-dark(#25344a1f, #0000004d); }
+.ap-search { display: inline-flex; align-items: center; gap: var(--ruyix-space-6); height: var(--ruyix-control-md); padding: 0 var(--ruyix-control-pad-sm); width: min(240px, 100%); border: .5px solid var(--ruyix-line);
+  border-radius: var(--ruyix-radius); background: var(--ruyix-surface-sunk); color: var(--ruyix-text-dim); }
+.ap-search input { border: 0; outline: 0; background: none; font: inherit; font-size: var(--ruyix-text-sm); color: var(--ruyix-text); width: 100%; min-width: 0; }
+.ap-main { flex: 1; overflow-y: auto; padding: var(--ruyix-space-16) var(--ruyix-space-20) var(--ruyix-space-28); }
+.ap-main > div { max-width: 1180px; }
+
+/* controls */
+.ap-btn { height: var(--ruyix-control-md); padding: 0 var(--ruyix-control-pad-md); display: inline-flex; align-items: center; gap: var(--ruyix-space-6); flex: none; white-space: nowrap; cursor: pointer; font: inherit; font-size: var(--ruyix-text-sm); font-weight: var(--ruyix-weight-medium);
+  color: var(--ruyix-text); text-decoration: none; border: 0; border-radius: var(--ruyix-radius-sm); background: var(--ruyix-control); box-shadow: var(--ruyix-control-lift);
+  transition: background .15s, box-shadow .15s, transform .08s; }
+.ap-btn:hover:not(:disabled) { background: var(--ruyix-control-hover); }
+.ap-btn:active:not(:disabled) { transform: translateY(.5px); box-shadow: var(--ruyix-control-press); }
+.ap-btn:focus-visible { outline: none; box-shadow: var(--ruyix-control-lift), var(--ruyix-focus); }
+.ap-btn:disabled { opacity: .5; cursor: default; }
+.ap-btn.ap-primary { color: var(--ruyix-on-primary); background: var(--ruyix-primary); box-shadow: var(--ruyix-primary-lift); font-weight: var(--ruyix-weight-semibold); }
+.ap-btn.ap-primary:hover:not(:disabled) { background: var(--ruyix-primary-hover); }
+.ap-btn.ap-primary:active:not(:disabled) { box-shadow: var(--ruyix-primary-press); }
+.ap-icon-btn:focus-visible { outline: 2px solid var(--ruyix-accent); outline-offset: 1px; }
+.ap-icon-btn { width: var(--ruyix-control-sm); height: var(--ruyix-control-sm); flex: none; display: inline-flex; align-items: center; justify-content: center; border: 0; border-radius: var(--ruyix-radius-xs);
+  background: none; color: var(--ruyix-text-dim); cursor: pointer; }
+.ap-icon-btn:hover { background: var(--ruyix-hover); color: var(--ruyix-text); }
+.ap-alert { display: flex; align-items: center; gap: var(--ruyix-space-6); padding: var(--ruyix-space-8) var(--ruyix-space-10); margin-bottom: 12px; border-radius: var(--ruyix-radius-sm); font-size: var(--ruyix-text-sm);
+  color: var(--ruyix-danger); background: color-mix(in srgb, var(--ruyix-danger) 9%, transparent); }
+.ap-warn { margin: 6px 0 0; font-size: var(--ruyix-text-sm); color: var(--ruyix-danger); }
+.ap-cmd { display: flex; align-items: center; gap: var(--ruyix-space-8); margin: 6px 0; padding: var(--ruyix-space-6) var(--ruyix-space-6) var(--ruyix-space-6) var(--ruyix-space-10); max-width: 640px; border-radius: var(--ruyix-radius-sm);
+  background: var(--ruyix-surface-sunk); border: .5px solid var(--ruyix-line); color: var(--ruyix-text-dim); }
+.ap-cmd code { flex: 1; min-width: 0; }
+
+/* notes (not in a box, not allowed, the display components) */
+.ap-note { display: flex; gap: var(--ruyix-space-12); align-items: flex-start; padding: var(--ruyix-space-14) var(--ruyix-space-16); margin-bottom: 14px; border-radius: var(--ruyix-radius-lg);
+  border: .5px solid var(--ruyix-line); background: var(--ruyix-surface); }
+.ap-note > svg { flex: none; margin-top: 2px; color: var(--ruyix-accent); }
+.ap-note h3 { margin: 0 0 4px; font-size: var(--ruyix-text-md); font-weight: var(--ruyix-weight-semibold); }
+.ap-note p { margin: 0 0 6px; }
+.ap-note-warn { background: var(--ruyix-warning-soft); border-color: color-mix(in srgb, var(--ruyix-warning) 30%, transparent); }
+.ap-note-warn > svg, .ap-note-warn h3 { color: var(--ruyix-warning); }
+
+/* sections and cards */
+.ap-sec { margin-bottom: 22px; }
+.ap-sec h2 { margin: 0; font-size: var(--ruyix-text-lg); font-weight: var(--ruyix-weight-semibold); }
+.ap-sec > .ap-sub { margin-bottom: 10px; }
+.ap-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(300px, 100%), 1fr)); gap: var(--ruyix-space-10); }
+.ap-card { display: grid; grid-template-columns: auto 1fr; grid-template-rows: 1fr auto; gap: var(--ruyix-space-8) var(--ruyix-space-12); padding: var(--ruyix-space-12) var(--ruyix-space-14); min-width: 0;
+  border: .5px solid transparent; box-shadow: var(--ruyix-card-lift); border-radius: var(--ruyix-radius-lg); background: var(--ruyix-surface); transition: box-shadow .2s, transform .2s; }
+.ap-card:hover { transform: translateY(-1px); box-shadow: 0 0 0 .5px var(--ruyix-line-strong), 0 2px 4px light-dark(rgba(16, 24, 40, .05), rgba(0, 0, 0, .25)), 0 16px 32px -18px light-dark(rgba(16, 24, 40, .26), rgba(0, 0, 0, .65)); }
+.ap-card-icon { grid-row: span 2; width: 40px; height: 40px; border-radius: var(--ruyix-radius); display: inline-flex; align-items: center; justify-content: center;
+  color: var(--ruyix-accent); background: color-mix(in srgb, var(--ruyix-accent) 11%, transparent); }
+.ap-card-text { min-width: 0; }
+.ap-card h3 { margin: 0; font-size: var(--ruyix-text-md); font-weight: var(--ruyix-weight-semibold); }
+.ap-card p { margin: 1px 0 4px; font-size: var(--ruyix-text-sm); color: var(--ruyix-text-muted); }
+.ap-card-act { display: flex; flex-wrap: wrap; gap: var(--ruyix-space-6); }
+.ap-state { display: inline-flex; align-items: center; gap: var(--ruyix-space-4); font-size: var(--ruyix-text-xs); color: var(--ruyix-text-dim); }
+.ap-state em { font-style: normal; color: var(--ruyix-text-dim); }
+.ap-state-installed { color: var(--ruyix-success); }
+.ap-state-running { color: var(--ruyix-accent); font-weight: var(--ruyix-weight-medium); }
+.ap-state-installing, .ap-state-queued { color: var(--ruyix-warning); }
+.ap-empty { margin: 10px 0 20px; }
+
+/* installs */
+.ap-jobs { display: flex; flex-direction: column; gap: var(--ruyix-space-6); margin-top: 8px; }
+.ap-job { padding: var(--ruyix-space-8) var(--ruyix-space-12); border-radius: var(--ruyix-radius-sm); border: .5px solid var(--ruyix-line); background: var(--ruyix-surface); }
+.ap-job-head { display: flex; align-items: center; gap: var(--ruyix-space-8); font-size: var(--ruyix-text-sm); min-width: 0; }
+.ap-job-head code { min-width: 0; }
+.ap-job-done .ap-job-head > svg { color: var(--ruyix-success); }
+.ap-job-failed .ap-job-head > svg { color: var(--ruyix-danger); }
+.ap-job-running .ap-job-head > svg, .ap-job-queued .ap-job-head > svg { color: var(--ruyix-warning); }
+.ap-job-err { margin: 4px 0; font-size: var(--ruyix-text-sm); color: var(--ruyix-danger); }
+.ap-job details { margin-top: 4px; font-size: var(--ruyix-text-sm); }
+.ap-job summary { cursor: pointer; color: var(--ruyix-text-dim); }
+.ap-job pre { margin: 6px 0 0; padding: var(--ruyix-space-8) var(--ruyix-space-10); max-height: 220px; overflow: auto; border-radius: var(--ruyix-radius-xs); background: var(--ruyix-surface-sunk);
+  font-size: var(--ruyix-text-xs); white-space: pre-wrap; overflow-wrap: anywhere; color: var(--ruyix-text-muted); }
+
+/* install by name */
+.ap-byname { display: flex; gap: var(--ruyix-space-8); max-width: 560px; }
+.ap-byname input { flex: 1; min-width: 0; height: var(--ruyix-control-md); padding: 0 var(--ruyix-control-pad-sm); border: .5px solid var(--ruyix-line); border-radius: var(--ruyix-radius);
+  background: var(--ruyix-surface-sunk); color: var(--ruyix-text); font: inherit; font-size: var(--ruyix-text-sm); font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+.ap-byname input:focus { outline: 2px solid color-mix(in srgb, var(--ruyix-accent) 50%, transparent); outline-offset: 0; }
+
+/* a running app inside this page (the classic mode) */
+.ap-inline { display: flex; flex-direction: column; height: 100%; min-height: 0; }
+.ap-inline-bar { display: flex; align-items: center; gap: var(--ruyix-space-10); padding: calc(var(--ruyix-space-8) + var(--dsh-frame-top-clearance, 0px)) var(--ruyix-space-14) var(--ruyix-space-8); border-bottom: .5px solid var(--ruyix-line);
+  background: var(--ruyix-surface); }
+.ap-inline-title { display: inline-flex; align-items: center; gap: var(--ruyix-space-6); font-weight: var(--ruyix-weight-semibold); color: var(--ruyix-title); }
+.ap-inline-body { flex: 1; min-height: 0; position: relative; }
+
+/* the display (also in the desktop's windows, outside the page) — never scaled with the interface: drawn pixel for pixel */
+.ap-vnc { position: relative; width: 100%; height: 100%; overflow: hidden; background: transparent; zoom: calc(1 / var(--ruyix-scale, 1)); }
+.ap-vnc-screen { position: absolute; inset: 0; }
+/* the keyboard's input box: unseen, until the input method composes a word — then a small box with it, by the last click */
+.ap-vnc-ime { position: absolute; z-index: 1; width: 2px; height: 2px; margin: 0; padding: 0; border: 0; outline: 0; resize: none; overflow: hidden;
+  white-space: pre; opacity: 0; pointer-events: none; background: transparent; color: transparent; caret-color: transparent; font: var(--ruyix-text-lg)/26px system-ui, sans-serif; }
+.ap-vnc-ime-on { opacity: 1; height: 28px; width: auto; min-width: 28px; max-width: calc(100% - 8px); field-sizing: content; padding: 0 var(--ruyix-space-8);
+  border-radius: var(--ruyix-radius-xs); background: var(--ruyix-surface); color: var(--ruyix-text); caret-color: var(--ruyix-accent);
+  box-shadow: 0 6px 18px rgb(0 0 0 / .22), 0 0 0 .5px var(--ruyix-line); }
+@supports not (field-sizing: content) { .ap-vnc-ime-on { width: 240px; } }
+.ap-vnc-note { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--ruyix-space-10);
+  color: var(--ruyix-text-muted); font-size: var(--ruyix-text-md); background: color-mix(in srgb, var(--ruyix-surface) 70%, transparent); }
+.ap-vnc .ap-btn { height: var(--ruyix-control-md); padding: 0 var(--ruyix-control-pad-md); border-radius: var(--ruyix-radius); border: .5px solid var(--ruyix-line); background: var(--ruyix-surface);
+  color: var(--ruyix-text); font: inherit; font-size: var(--ruyix-text-sm); cursor: pointer; }
+
+/* a terminal (term.jsx; also in the desktop's windows): xterm.js fills it at the page's own pixels — never zoomed with the
+   interface (it measures its letters; its font size takes the interface's size instead), on the window's own ground */
+.ap-term { position: relative; width: 100%; height: 100%; overflow: hidden; background: var(--ruyix-surface); zoom: calc(1 / var(--ruyix-scale, 1)); }
+.ap-term-screen { position: absolute; inset: 6px 4px 2px 10px; }
+.ap-term-screen .xterm { height: 100%; }
+.ap-term-note { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--ruyix-space-10);
+  color: var(--ruyix-text-muted); font-size: var(--ruyix-text-md); background: color-mix(in srgb, var(--ruyix-surface) 82%, transparent); text-align: center; padding: var(--ruyix-space-16); }
+.ap-term-note-quiet { background: transparent; pointer-events: none; }
+.ap-term-acts { display: flex; gap: var(--ruyix-space-8); }
+.ap-term-why { max-width: 80%; font-size: var(--ruyix-text-xs); color: var(--ruyix-text-dim); overflow-wrap: anywhere; }
+.ap-term .ap-btn { height: var(--ruyix-control-md); padding: 0 var(--ruyix-control-pad-md); border-radius: var(--ruyix-radius); border: .5px solid var(--ruyix-line); background: var(--ruyix-surface);
+  color: var(--ruyix-text); font: inherit; font-size: var(--ruyix-text-sm); cursor: pointer; }
+.ap-term .ap-btn.ap-primary { color: var(--ruyix-on-primary); background: var(--ruyix-primary); border-color: transparent; }
+.ap-card .ap-card-note { grid-column: 2; margin: 0; font-size: var(--ruyix-text-xs); color: var(--ruyix-text-dim); }
+.ap-btn.ap-danger { color: var(--ruyix-danger); }
+/* uninstalling: quiet until asked twice (then red) */
+.ap-btn.ap-quiet:not(.ap-danger) { color: var(--ruyix-text-muted); }
+.ap-state-removing { color: var(--ruyix-warning); }
+
+/* the desk's widget (LauncherWidget): the desktop draws its glass; inside, the apps as icons */
+.ap-wl-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--ruyix-space-8) var(--ruyix-space-4); }
+.ap-wl-sm { height: 100%; display: grid; }
+.ap-wl-sm .ap-wl-grid { grid-template-columns: repeat(2, 1fr); align-content: center; justify-items: center; gap: var(--ruyix-space-10); }
+.ap-wl-app { display: flex; flex-direction: column; align-items: center; gap: var(--ruyix-space-4); min-width: 0; padding: var(--ruyix-space-4) 0; border: 0; background: none;
+  border-radius: var(--ruyix-radius-sm); color: var(--ad-text, var(--ruyix-text)); font: inherit; cursor: pointer; }
+.ap-wl-app:hover .ap-wl-icon { transform: translateY(-1px); box-shadow: 0 0 0 .5px var(--ruyix-control-edge), 0 4px 10px -4px rgba(0, 0, 0, .3); }
+.ap-wl-icon { position: relative; width: 40px; height: 40px; display: grid; place-items: center; border-radius: var(--ruyix-radius); color: var(--ruyix-accent);
+  background: var(--ruyix-control); box-shadow: var(--ruyix-control-lift); transition: transform .15s, box-shadow .15s; }
+.ap-wl-sm .ap-wl-icon { width: 44px; height: 44px; }
+.ap-wl-icon i { position: absolute; bottom: -5px; left: 50%; width: 4px; height: 4px; margin-left: -2px; border-radius: 50%; background: var(--ad-text-2, var(--ruyix-text-muted)); }
+.ap-wl-name { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: var(--ruyix-text-2xs); color: var(--ad-text-2, var(--ruyix-text-muted)); }
+.ap-wl-none { width: 100%; padding: var(--ruyix-space-8) 0; border: 0; background: none; color: var(--ad-text-2, var(--ruyix-text-muted)); font: inherit; font-size: var(--ruyix-text-xs); text-align: left; cursor: pointer; }
+
+/* the person's own apps (made.jsx): a frame with scripts only, white like a browser's page until the app paints its own */
+.ap-made-win { position: relative; display: flex; width: 100%; height: 100%; overflow: hidden; }
+.ap-made-frame { flex: 1; width: 100%; height: 100%; border: 0; background: #fff; color-scheme: light; }
+.ap-made-inline .ap-made-win { height: 70vh; margin-top: var(--ruyix-space-10); border-radius: var(--ruyix-radius-lg); box-shadow: var(--ruyix-card-lift); }
+.ap-made-none { display: inline-flex; align-items: center; gap: var(--ruyix-space-6); }
+.ap-made-widget { display: flex; height: 100%; min-height: 160px; overflow: hidden; border-radius: inherit; }
+.ap-made-wpic { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--ruyix-space-6); height: 100%; min-height: 120px; color: var(--ruyix-accent); }
+.ap-made-wpic b { font-size: var(--ruyix-text-sm); color: var(--ruyix-text); }

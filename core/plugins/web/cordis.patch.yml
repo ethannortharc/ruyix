@@ -1,0 +1,14 @@
+- insert:
+    - id: ruyix-web
+      name: '@ruyix/web'
+# dsh's web capability runs this Ruyix's search and fetch (index.js: the services chosen in Settings → 搜索); its fetch
+# tool, off in dsh's own config for want of a guard against private addresses, is on: ruyix-fetch has one (lib/guard.js)
+- id: web
+  config:
+    searchProvider: ruyix-search
+    fetchProvider: ruyix-fetch
+- id: tool-web
+  config:
+    fetch: true
+    searchTimeoutMs: 60000
+    fetchTimeoutMs: 60000

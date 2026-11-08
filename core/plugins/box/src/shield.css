@@ -1,0 +1,17 @@
+/* the box on the desk (widget) and in the top bar (a light and a menu): what the desk's shared classes do not cover */
+.bx-w { display: block; min-width: 0; border-radius: var(--ruyix-radius-sm); cursor: pointer; }
+.bx-w:hover .ad-w-cap > span { color: var(--ruyix-accent); }
+.bx-w:focus-visible { outline: none; box-shadow: var(--ruyix-focus); }
+.bx-w-last { margin: var(--ruyix-space-4) 0 0; font-size: var(--ruyix-text-xs); color: var(--ad-text-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+.bx-tray { position: relative; display: inline-flex; }
+.bx-ico { position: relative; display: inline-flex; }
+.bx-light { position: absolute; top: -2px; right: -4px; width: 6px; height: 6px; border-radius: var(--ruyix-radius-pill); background: var(--ruyix-warning); box-shadow: 0 0 0 1.5px var(--ad-mat-solid); }
+.bx-light.bx-bad { background: var(--ruyix-danger); }
+.bx-menu { position: absolute; top: calc(100% + 6px); right: 0; left: auto; width: 300px; max-width: min(300px, calc(var(--ad-vw, 100vw) - 16px)); }
+.bx-menu-head { display: flex; align-items: baseline; justify-content: space-between; gap: var(--ruyix-space-8); padding: var(--ruyix-space-6) var(--ruyix-space-10) var(--ruyix-space-4); }
+.bx-menu-head b { font-size: var(--ruyix-text-md); font-weight: var(--ruyix-weight-semibold); }
+.bx-menu-head span { font-size: var(--ruyix-text-sm); color: var(--ad-text-3); }
+.bx-menu-line { margin: 0; padding: var(--ruyix-space-4) var(--ruyix-space-10); font-size: var(--ruyix-text-sm); color: var(--ad-text-2); font-variant-numeric: tabular-nums; }
+.bx-menu-line + .bx-menu-line { padding-top: 0; }
+.bx-menu-line small { display: block; margin-top: 1px; font-size: var(--ruyix-text-xs); color: var(--ad-text-3); overflow-wrap: anywhere; }

@@ -1,0 +1,58 @@
+{
+  "name": "@ruyix/plume",
+  "version": "0.4.0",
+  "description": "Plume pack for the Ruyix workbench: one piece of content to 小红书, X and 公众号 — research, a master draft you review, a version per platform with its cards, checked against each platform's rules, then a publish card per platform (X through its API, 小红书 filled in a browser you watch, 公众号 copied in). Part of Ruyix, the agent OS built on DSH (DeepSeek Harness).",
+  "keywords": [
+    "dsh",
+    "dsh-plugin",
+    "deepseek-harness",
+    "ruyix",
+    "agent-os"
+  ],
+  "type": "module",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ethannortharc/ruyix.git",
+    "directory": "packs/plume"
+  },
+  "exports": {
+    ".": "./index.js",
+    "./client": "./client.js",
+    "./package.json": "./package.json"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "inject": [
+        "@deepseek-ai/dsh-client-locale"
+      ]
+    }
+  },
+  "dependencies": {
+    "@ruyix/workbench": "file:../../core/workbench"
+  },
+  "scripts": {
+    "build": "node build.mjs",
+    "check": "node check.mjs && node research-check.mjs && node knowledge-check.mjs && node adaptation-check.mjs && node ui-check.mjs && node platform-ui-check.mjs"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.12",
+    "lucide-react": "^1.49.0"
+  },
+  "files": [
+    "index.js",
+    "pack.js",
+    "studio.js",
+    "client.js",
+    "lib",
+    "cordis.patch.yml",
+    "README.md"
+  ],
+  "peerDependencies": {
+    "@deepseek-ai/dsh": ">=0.2.0-rc.2 <0.3.0"
+  }
+}

@@ -1,0 +1,67 @@
+{
+  "name": "@ruyix/workbench",
+  "version": "0.4.0",
+  "description": "Workbench: workflows run by a team of agents, every step on a hash-chained evidence ledger, the person's approval before anything leaves the machine; domain packs plug in their workflows, tools and actions.",
+  "type": "module",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ethannortharc/ruyix.git",
+    "directory": "core/workbench"
+  },
+  "exports": {
+    ".": "./index.js",
+    "./client": "./client.js",
+    "./pack": "./pack.js",
+    "./package.json": "./package.json",
+    "./common": "./workflows/common.js",
+    "./tools": "./lib/tools.js",
+    "./file": "./lib/file.js",
+    "./person": "./lib/person.js"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "inject": [
+        "@deepseek-ai/dsh-client-locale",
+        "@deepseek-ai/dsh-client-ui-layout",
+        "@deepseek-ai/dsh-client-ui-sidebar",
+        "@deepseek-ai/dsh-client-ui-workspace",
+        "@deepseek-ai/dsh-api-session-controller",
+        "@deepseek-ai/dsh-client-ui-session",
+        "@deepseek-ai/dsh-api-workspace-controller"
+      ]
+    }
+  },
+  "dependencies": {
+    "@ruyix/board": "file:../board",
+    "@ruyix/messages": "file:../messages",
+    "@ruyix/shell": "file:../shell"
+  },
+  "scripts": {
+    "build": "node build.mjs",
+    "check": "node check.mjs && node config-check.mjs && node store-check.mjs && node results-ui-check.mjs && node flow-check.mjs && node versions-check.mjs && node browser-check.mjs && node schedule-check.mjs && node activity-check.mjs && node tasks-check.mjs"
+  },
+  "devDependencies": {
+    "@xyflow/react": "^12.12.0",
+    "esbuild": "^0.25.12",
+    "lucide-react": "^1.49.0"
+  },
+  "files": [
+    "index.js",
+    "pack.js",
+    "lib",
+    "workflows",
+    "skills",
+    "client.js",
+    "vendor",
+    "cordis.patch.yml",
+    "README.md"
+  ],
+  "peerDependencies": {
+    "@deepseek-ai/dsh": ">=0.2.0-rc.2 <0.3.0"
+  }
+}

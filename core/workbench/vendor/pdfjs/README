@@ -1,0 +1,2 @@
+pdf.js 6.4.299 (pdfjs-dist, Apache-2.0: LICENSE) — the two files the review / results viewer loads to show a PDF page by page
+(src/viewer.jsx, served by index.js at /api/ruyix-workbench/pdfjs/…). Nothing else of the package is used.

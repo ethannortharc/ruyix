@@ -1,0 +1,12 @@
+# The shell replaces dsh's own brand (its sidebar mark and name) with Ruyix's.
+- id: ui-brand-official
+  disabled: true
+- insert:
+    - id: ruyix-shell
+      name: '@ruyix/shell'
+# The first visit opens on the shell's Get started page, not on dsh's preview notice (acknowledged here for the notice
+# of the dsh this release runs: update it with "ruyix": { "dsh" } in package.json). dsh's own request for a model key
+# stays: the agents need a model before anything else (Settings → Models holds it afterwards).
+- id: ui-settings-general
+  config:
+    welcomeNoticeVersion: '2026-09-28.1'

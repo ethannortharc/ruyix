@@ -1,0 +1,98 @@
+/* Ruyix's semantic tokens: the one place Ruyix's colours, lines, surfaces and corner radii are
+   named. Every plugin bundles this file (so it looks the same with the shell off) and styles its panels with these
+   names only; the palette follows dsh's light/dark choice, with softer surfaces and readable state colours.
+   On body, where dsh defines its --dsw-* tokens (a :root definition could not read them), inside :where() so the
+   shell or a theme overrides any of them with a plain `body { … }` rule. */
+:where(body) {
+  /* meaning */
+  --ruyix-accent: light-dark(#0f766e, #5eead4);             /* actions, links, selection, "in progress" — the Ruyix's teal */
+  --ruyix-success: light-dark(#287858, #8fbfa7);            /* passed, verified, done */
+  --ruyix-warning: light-dark(#7f5d05, #ebc56a);            /* waiting for a person, doubtful */
+  --ruyix-warning-soft: light-dark(#fff0ba, #49402b);       /* gold highlights with readable warning text */
+  --ruyix-danger: light-dark(#b72c42, #ff9999);             /* failed, broken, destructive */
+  --ruyix-highlight: var(--dsw-alias-brand-primary);        /* emphasis that is not a state */
+  --ruyix-accent-alt: color-mix(in oklab, var(--ruyix-accent) 50%, #0ea5e9); /* the second hue (teal to sky) of gradients and glows: decoration only, never a state */
+  /* text */
+  --ruyix-title: light-dark(#21334d, #eef4fc);
+  --ruyix-text: light-dark(#344256, #d9e3ef);
+  --ruyix-text-muted: light-dark(#53667f, #b7c5d8);
+  --ruyix-text-dim: light-dark(#5d6d82, #9eacc0);
+  /* lines and surfaces */
+  --ruyix-line: light-dark(#dfe4eb, #424e5e);
+  --ruyix-line-strong: light-dark(#c3cddd, #586a80);
+  --ruyix-canvas: light-dark(#f3f5f8, #22272f);            /* page background */
+  --ruyix-chrome: light-dark(#edf0f5, #1b2028);            /* sidebar and frame */
+  --ruyix-surface: light-dark(#ffffff, #2b333f);           /* cards, panels */
+  --ruyix-surface-sunk: light-dark(#edf1f6, #252c36);       /* wells, code, inputs */
+  --ruyix-hover: light-dark(#e7edf5, #354252);
+  --ruyix-selection: color-mix(in srgb, var(--ruyix-accent) 12%, var(--ruyix-surface));
+  /* ── the system style's two dials (desktop.json → the shell writes them on body): every size below follows them ── */
+  --ruyix-density: 1;    /* compact .88 · standard 1 · roomy 1.12 — controls and spacing (text half as much) */
+  --ruyix-radius-k: 1;   /* corners: small .6 · standard 1 · large 1.4 */
+  --ruyix-text-k: calc(.5 + var(--ruyix-density) / 2);
+  /* type: a scale of eight; body text is md (13px, as a Mac's). Weights: medium for controls, semibold for titles */
+  --ruyix-font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Segoe UI", system-ui, sans-serif;
+  --ruyix-font-mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, monospace;
+  --ruyix-text-2xs: calc(10px * var(--ruyix-text-k));   /* badges, the smallest captions */
+  --ruyix-text-xs: calc(11px * var(--ruyix-text-k));    /* meta, hints, chips */
+  --ruyix-text-sm: calc(12px * var(--ruyix-text-k));    /* secondary text, small controls */
+  --ruyix-text-md: calc(13px * var(--ruyix-text-k));    /* body text, controls */
+  --ruyix-text-lg: calc(14.5px * var(--ruyix-text-k));  /* emphasis, a card's title */
+  --ruyix-text-xl: calc(17px * var(--ruyix-text-k));    /* a page's title */
+  --ruyix-text-2xl: calc(22px * var(--ruyix-text-k));   /* big numbers */
+  --ruyix-text-3xl: calc(28px * var(--ruyix-text-k));   /* a hero's title */
+  --ruyix-weight-medium: 520;
+  --ruyix-weight-semibold: 600;
+  --ruyix-weight-bold: 680;
+  /* spacing: a 4px grid (2px steps up to 16), named by its standard size */
+  --ruyix-space-4: calc(4px * var(--ruyix-density));
+  --ruyix-space-6: calc(6px * var(--ruyix-density));
+  --ruyix-space-8: calc(8px * var(--ruyix-density));
+  --ruyix-space-10: calc(10px * var(--ruyix-density));
+  --ruyix-space-12: calc(12px * var(--ruyix-density));
+  --ruyix-space-14: calc(14px * var(--ruyix-density));
+  --ruyix-space-16: calc(16px * var(--ruyix-density));
+  --ruyix-space-20: calc(20px * var(--ruyix-density));
+  --ruyix-space-24: calc(24px * var(--ruyix-density));
+  --ruyix-space-28: calc(28px * var(--ruyix-density));
+  --ruyix-space-32: calc(32px * var(--ruyix-density));
+  /* controls (buttons, fields, segmented, tabs): heights and their side padding */
+  --ruyix-control-xs: calc(22px * var(--ruyix-density));
+  --ruyix-control-sm: calc(26px * var(--ruyix-density));
+  --ruyix-control-md: calc(30px * var(--ruyix-density));
+  --ruyix-control-lg: calc(34px * var(--ruyix-density));
+  --ruyix-control-xl: calc(40px * var(--ruyix-density));
+  --ruyix-control-pad-xs: calc(8px * var(--ruyix-density));
+  --ruyix-control-pad-sm: calc(10px * var(--ruyix-density));
+  --ruyix-control-pad-md: calc(13px * var(--ruyix-density));
+  --ruyix-control-pad-lg: calc(16px * var(--ruyix-density));
+  --ruyix-control-pad-xl: calc(20px * var(--ruyix-density));
+  /* corners: small chips · buttons and inputs · rows and notes · cards · pills */
+  --ruyix-radius-xs: calc(6px * var(--ruyix-radius-k));
+  --ruyix-radius-sm: calc(8px * var(--ruyix-radius-k));
+  --ruyix-radius: calc(10px * var(--ruyix-radius-k));
+  --ruyix-radius-lg: calc(14px * var(--ruyix-radius-k));
+  --ruyix-radius-xl: calc(18px * var(--ruyix-radius-k));
+  --ruyix-radius-pill: 999px;
+  /* material — how controls and cards stand off the page: a face lit from above, a hairline edge, a small shadow under it;
+     pressed, it sinks. Buttons: --ruyix-control* (the usual one), --ruyix-primary* (the one action, in the accent). */
+  --ruyix-control: linear-gradient(180deg, light-dark(#ffffff, #3b4451), light-dark(#f4f6f9, #323a46));
+  --ruyix-control-hover: linear-gradient(180deg, light-dark(#ffffff, #434d5b), light-dark(#ecf0f5, #38414e));
+  --ruyix-control-edge: light-dark(rgba(22, 34, 54, .18), rgba(255, 255, 255, .12));
+  --ruyix-control-lift: 0 0 0 .5px var(--ruyix-control-edge), 0 1px 1.5px light-dark(rgba(16, 24, 40, .08), rgba(0, 0, 0, .35)), inset 0 1px 0 light-dark(rgba(255, 255, 255, .95), rgba(255, 255, 255, .07));
+  --ruyix-control-press: 0 0 0 .5px var(--ruyix-control-edge), inset 0 1px 2.5px light-dark(rgba(16, 24, 40, .16), rgba(0, 0, 0, .45));
+  /* (in dark the accent is a light colour: the button is a deeper shade of it, with white words) */
+  --ruyix-primary: linear-gradient(180deg, light-dark(color-mix(in oklab, var(--ruyix-accent) 82%, #fff), color-mix(in oklab, var(--ruyix-accent) 62%, #000)),
+    light-dark(color-mix(in oklab, var(--ruyix-accent) 95%, #000), color-mix(in oklab, var(--ruyix-accent) 49%, #000)));
+  --ruyix-primary-hover: linear-gradient(180deg, light-dark(color-mix(in oklab, var(--ruyix-accent) 74%, #fff), color-mix(in oklab, var(--ruyix-accent) 68%, #000)),
+    light-dark(var(--ruyix-accent), color-mix(in oklab, var(--ruyix-accent) 55%, #000)));
+  --ruyix-on-primary: #ffffff;
+  --ruyix-primary-lift: 0 0 0 .5px light-dark(color-mix(in oklab, var(--ruyix-accent) 62%, #000), color-mix(in oklab, var(--ruyix-accent) 40%, transparent)), inset 0 1px 0 light-dark(rgba(255, 255, 255, .28), rgba(255, 255, 255, .16)),
+    0 1px 2px light-dark(color-mix(in oklab, var(--ruyix-accent) 35%, transparent), rgba(0, 0, 0, .4)), 0 6px 16px -8px light-dark(color-mix(in oklab, var(--ruyix-accent) 75%, transparent), color-mix(in oklab, var(--ruyix-accent) 40%, transparent));
+  --ruyix-primary-press: 0 0 0 .5px color-mix(in oklab, var(--ruyix-accent) 55%, #000), inset 0 1px 3px rgba(0, 0, 0, .3);
+  --ruyix-focus: 0 0 0 3px color-mix(in oklab, var(--ruyix-accent) 32%, transparent);
+  --ruyix-card-lift: 0 0 0 .5px var(--ruyix-line), 0 1px 2px light-dark(rgba(16, 24, 40, .04), rgba(0, 0, 0, .22)), 0 12px 32px -18px light-dark(rgba(16, 24, 40, .2), rgba(0, 0, 0, .6));
+  --ruyix-field: inset 0 0 0 .5px var(--ruyix-line-strong), inset 0 1px 2px light-dark(rgba(16, 24, 40, .05), rgba(0, 0, 0, .3));
+  /* the interface's size on the desktop (its pages and windows; the desktop sets it on body) — 1 elsewhere */
+  --ruyix-scale: 1;
+}

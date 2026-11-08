@@ -1,0 +1,44 @@
+{
+  "name": "@ruyix/board",
+  "version": "0.4.0",
+  "description": "Boards: the dataset, dashboard, preset and layout schema, the built-in presets, and the one renderer — for the boards an agent proposes and the ones drawn in a conversation. Part of Ruyix, the agent OS built on DSH (DeepSeek Harness).",
+  "keywords": [
+    "dsh",
+    "dsh-plugin",
+    "deepseek-harness",
+    "ruyix",
+    "agent-os"
+  ],
+  "type": "module",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ethannortharc/ruyix.git",
+    "directory": "core/board"
+  },
+  "exports": {
+    ".": "./Board.jsx",
+    "./schema": "./schema.js",
+    "./presets": "./presets.js",
+    "./board.css": "./board.css",
+    "./run": "./run.js",
+    "./inline": "./inline.js",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "Board.jsx",
+    "schema.js",
+    "presets.js",
+    "run.js",
+    "inline.js",
+    "board.css"
+  ],
+  "peerDependencies": {
+    "react": "^18"
+  },
+  "peerDependenciesMeta": {
+    "react": {
+      "optional": true
+    }
+  }
+}

@@ -1,0 +1,131 @@
+{
+  "name": "@ruyix/shell",
+  "version": "0.4.0",
+  "description": "Ruyix's shell over DSH — the desktop, the brand, the home page, the one Settings page, what an agent may propose to change (and undo), and the ruyix command. Part of Ruyix, the agent OS built on DSH (DeepSeek Harness).",
+  "keywords": [
+    "dsh",
+    "dsh-plugin",
+    "deepseek-harness",
+    "ruyix",
+    "agent-os"
+  ],
+  "type": "module",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ethannortharc/ruyix.git",
+    "directory": "core/shell"
+  },
+  "exports": {
+    ".": "./index.js",
+    "./client": "./client.js",
+    "./package.json": "./package.json",
+    "./tokens.css": "./tokens.css",
+    "./wallpaper": "./src/desktop/wallpaper.js",
+    "./work": "./src/work.js",
+    "./work-lines": "./src/work-lines.js",
+    "./locale/*.json": "./locale/*.json",
+    "./open": "./src/open.js",
+    "./collab": "./src/desktop/collab.jsx",
+    "./strip": "./src/desktop/strip.jsx",
+    "./cards-spec": "./src/cards/spec.js",
+    "./cards": "./src/cards/cards.jsx",
+    "./answers": "./src/answers.js",
+    "./money": "./src/money.js",
+    "./progress": "./src/progress.js",
+    "./agent-colors": "./src/desktop/agents.js"
+  },
+  "bin": {
+    "ruyix": "bin/ruyix"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "inject": [
+        "@deepseek-ai/dsh-client-locale",
+        "@deepseek-ai/dsh-client-ui-layout",
+        "@deepseek-ai/dsh-client-ui-sidebar"
+      ]
+    }
+  },
+  "ruyix": {
+    "dsh": "0.2.0-rc.2",
+    "packages": [
+      "@ruyix/connectors",
+      "@ruyix/agent-hub",
+      "@ruyix/workbench",
+      "@ruyix/studio",
+      "@ruyix/web",
+      "@ruyix/plume",
+      "@ruyix/video",
+      "@ruyix/newsletter",
+      "@ruyix/box",
+      "@ruyix/apps",
+      "@ruyix/world",
+      "@ruyix/shell"
+    ]
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.12",
+    "lucide-react": "^1.49.0"
+  },
+  "scripts": {
+    "build": "node build.mjs",
+    "check": "node check.mjs"
+  },
+  "files": [
+    "src/cards/cards.css",
+    "src/cards/cards.jsx",
+    "index.js",
+    "client.js",
+    "providers.js",
+    "system.js",
+    "system-serve.js",
+    "find.js",
+    "cordis.patch.yml",
+    "locale",
+    "tokens.css",
+    "bin",
+    "skills",
+    "README.md",
+    "signin.js",
+    "settings.js",
+    "surfaces.js",
+    "lock.js",
+    "commit.js",
+    "mark.js",
+    "desktop.js",
+    "voice.js",
+    "notes.js",
+    "app.js",
+    "assets",
+    "src/work.js",
+    "src/work-lines.js",
+    "src/desktop/wallpaper.js",
+    "open.js",
+    "open-model.js",
+    "src/open.js",
+    "src/desktop/collab.jsx",
+    "src/desktop/agents.js",
+    "src/desktop/strip.jsx",
+    "src/desktop/workmark.jsx",
+    "src/desktop/text.js",
+    "voice-key.js",
+    "cards-tool.js",
+    "src/cards/spec.js",
+    "open-sweep.js",
+    "src/answers.js",
+    "src/money.js",
+    "src/progress.js",
+    "build.json"
+  ],
+  "peerDependencies": {
+    "@deepseek-ai/dsh": ">=0.2.0-rc.2 <0.3.0"
+  },
+  "dependencies": {
+    "@ruyix/board": "file:../board"
+  }
+}

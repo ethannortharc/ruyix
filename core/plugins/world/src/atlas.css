@@ -1,0 +1,62 @@
+/* ── the old map: ink on paper ── */
+.wd-atlas { color: #3a2c1e; font-family: "Songti SC", "STSong", "Noto Serif CJK SC", "Source Han Serif SC", serif; }
+.wd-atlas .wd-icon svg { stroke: #3a2c1e; fill: none; filter: drop-shadow(0 0 3px rgba(238, 226, 196, .9)); }
+.wd-atlas .wd-icon .wd-red { fill: #b33a26; stroke: #3a2c1e; stroke-width: 1.2; }
+.wd-atlas .wd-icon .wd-paper { fill: #f1e6c8; }
+.wd-atlas .wd-icon .wd-beam { stroke: #b33a26; stroke-dasharray: 2 4; }
+.wd-atlas .wd-icon-own { color: #3a2c1e; padding-top: 10px; }
+.wd-atlas .wd-name, .wd-atlas .wd-task { text-shadow: 0 0 3px rgba(238, 226, 196, .95), 0 0 9px rgba(238, 226, 196, .85); }
+/* a name over an island's relief: a patch of bare paper fading out behind it, as a mapmaker clears the ground for a word */
+.wd-atlas .wd-place .wd-name { padding: 2px 14px 4px; background: radial-gradient(closest-side, rgba(240, 231, 207, .92) 55%, rgba(240, 231, 207, 0)); }
+.wd-atlas .wd-name b { font-weight: var(--ruyix-weight-bold); letter-spacing: .1em; }
+.wd-atlas .wd-wait span { color: #a3301f; opacity: 1; font-weight: var(--ruyix-weight-semibold); }
+.wd-atlas .wd-count { background: #b33a26; color: #fff6e6; box-shadow: 0 0 0 1.5px #f1e6c8, 0 0 0 2.5px #3a2c1e; }
+.wd-atlas .wd-tip { background: #f1e6c8; color: #3a2c1e; box-shadow: 0 0 0 1px rgba(58, 44, 30, .5), 0 6px 18px rgba(40, 28, 10, .25); }
+.wd-atlas .wd-hud button { background: #efe3c2; color: #3a2c1e; box-shadow: inset 0 0 0 1px rgba(58, 44, 30, .55), 0 2px 6px rgba(40, 28, 10, .2); }
+.wd-atlas .wd-hud button:hover { background: #f6ecd2; }
+.wd-atlas .wd-hud .wd-on { background: #a3321f; color: #fbf3df; box-shadow: inset 0 0 0 1px #6e1e12, 0 0 0 3px rgba(163, 50, 31, .2); }
+.wd-atlas .wd-cartouche { background: #f1e6c8; box-shadow: 0 0 0 1.5px #3a2c1e, 0 0 0 5px #f1e6c8, 0 0 0 6px rgba(58, 44, 30, .6), 0 8px 22px rgba(40, 28, 10, .2); }
+.wd-atlas .wd-k-launch .wd-name b { color: #a3301f; }
+
+/* its windows: a paper border, a Song title */
+.ad-root[data-world="atlas"] :is(.ad-win, .ad-xwin) { box-shadow: 0 0 0 1px rgba(58, 44, 30, .6), 0 0 0 6px #ecdfbd, 0 0 0 7px rgba(58, 44, 30, .45), 0 26px 60px rgba(40, 28, 10, .35); }
+.ad-root[data-world="atlas"] :is(.ad-win, .ad-xwin) .ad-title { color: #3a2c1e; }
+.ad-root[data-world="atlas"] :is(.ad-win, .ad-xwin) .ad-titlebar { background: #ecdfbd; color: #3a2c1e; font-family: "Songti SC", "STSong", serif; border-bottom: 1px solid rgba(58, 44, 30, .35); }
+
+/* an island is its shore and nothing else: no picture, no count (the inbox's island is outlined and its name says how many
+   wait); the whole island answers the pointer (--fig: its reach), and its name shows only then, written by hand below it.
+   The ship and the compass rose stay: they are the map's own ornaments, their names too only when pointed at */
+.wd-atlas .wd-place:not(.wd-k-clock):not(.wd-k-launch):not(.wd-k-settings) .wd-pic { left: calc(-1 * var(--fig, 30px)); top: calc(-1 * var(--fig, 30px)); width: calc(2 * var(--fig, 30px)); height: calc(2 * var(--fig, 30px));
+  border-radius: 50%; corner-shape: round; transform: none; }
+.wd-atlas .wd-place:not(.wd-k-clock):not(.wd-k-launch):not(.wd-k-settings) :is(.wd-icon, .wd-count) { display: none; }
+/* (the pointer finds an island by its shape: world.jsx isleAt — the button stays for the keyboard) */
+.wd-atlas .wd-place:not(.wd-k-clock):not(.wd-k-launch):not(.wd-k-settings) .wd-pic { pointer-events: none; }
+.wd-atlas .wd-layer.wd-pointing { cursor: pointer; }
+.wd-atlas .wd-place:not(.wd-k-clock) .wd-name { opacity: 0; transition: opacity .2s ease; }
+.wd-atlas .wd-place:not(.wd-k-clock):not(.wd-k-launch):not(.wd-k-settings) .wd-name { top: calc(var(--fig, 30px) * .55); }
+.wd-atlas .wd-place:is(:hover, :focus-visible, .wd-hot) .wd-name { opacity: 1; }
+.wd-atlas .wd-place:focus-visible { outline: none; }
+.wd-atlas .wd-name b { font-family: "Apple Chancery", "Snell Roundhand", "Kaiti SC", "STKaiti", "KaiTi", "Songti SC", serif; font-size: var(--ruyix-text-lg); font-weight: var(--ruyix-weight-medium); letter-spacing: .06em; }
+.wd-atlas .wd-name span { font-family: "Kaiti SC", "STKaiti", "KaiTi", "Songti SC", serif; font-style: italic; }
+.wd-atlas .wd-task :is(b, span) { opacity: 0; transition: opacity .2s ease; }
+.wd-atlas .wd-task:is(:hover, :focus-visible, .wd-hot) :is(b, span) { opacity: 1; }
+/* windows one sees the map through (desktop.json transparency): the title bar too */
+:root[data-ruyix-see] .ad-root[data-world="atlas"] :is(.ad-win, .ad-xwin) .ad-titlebar { background: color-mix(in srgb, #ecdfbd var(--ad-see-card), transparent); }
+/* what is done and not looked at, beside the records' place */
+.wd-atlas .wd-done { background: #f4ead0; color: #3a2c1e; box-shadow: 0 0 0 1px rgba(58, 44, 30, .55), 0 0 0 4px #ecdfbd, 0 0 0 5px rgba(58, 44, 30, .35), 0 14px 30px rgba(40, 28, 10, .3); }
+.wd-atlas .wd-done button:hover { background: rgba(58, 44, 30, .08); }
+.wd-atlas .wd-done-dot { background: #4f7a46; }
+/* the open things' groups (the shell's cards at the left), in this map's material */
+.ad-root[data-world="atlas"] :is(.ad-group-card, .ad-group-list) { background: #f4ead0; color: #3a2c1e; backdrop-filter: none; box-shadow: 0 0 0 1px rgba(58, 44, 30, .55), 0 0 0 4px #ecdfbd, 0 0 0 5px rgba(58, 44, 30, .3), 0 8px 18px rgba(40, 28, 10, .22); }
+.ad-root[data-world="atlas"] .ad-group-name b { font-family: "Songti SC", "STSong", serif; }
+.ad-root[data-world="atlas"] .ad-group.ad-on .ad-group-card { box-shadow: 0 0 0 1.5px #a3321f, 0 0 0 4px #ecdfbd, 0 0 0 5px rgba(163, 50, 31, .5), 0 8px 18px rgba(40, 28, 10, .22); }
+/* the work going on (the shell's strip, under the cards), in this map's material */
+.ad-root[data-world="atlas"] :is(.ad-ly-lane, .ad-dn-w, .ad-strip-pop) { background: #f4ead0; color: #3a2c1e; backdrop-filter: none; box-shadow: 0 0 0 1px rgba(58, 44, 30, .5), 0 0 0 4px #ecdfbd, 0 0 0 5px rgba(58, 44, 30, .28), 0 8px 18px rgba(40, 28, 10, .22); }
+.ad-root[data-world="atlas"] .ad-strip { --ad-text: #3a2c1e; --ad-text-2: #6b5842; }
+.ad-root[data-world="atlas"] .ad-ly-title, .ad-root[data-world="atlas"] .ad-note-text b { font-family: "Songti SC", "STSong", serif; }
+.ad-root[data-world="atlas"] .ad-ly-line { font-family: "Kaiti SC", "STKaiti", "KaiTi", serif; }
+.ad-root[data-world="atlas"] .ad-ly-tool { font-family: var(--ruyix-font-mono); }
+.ad-root[data-world="atlas"] .ad-strip-h { color: #6b5842; font-family: "Songti SC", serif; }
+.ad-root[data-world="atlas"] :is(.ad-ly-who, .ad-ly-all b, .ad-ly-caret) { filter: brightness(.55) saturate(1.5); }
+/* the version, small in the corner, in this map's lettering */
+.ad-root[data-world="atlas"] .wd-version { color: #3a2c1e; font-family: "Songti SC", "STSong", serif; opacity: .65; }

@@ -1,0 +1,24 @@
+{
+  "name": "ruyix",
+  "private": true,
+  "license": "MIT",
+  "description": "Ruyix — the agent OS, as you wish. Built on DSH (DeepSeek Harness); its core is customization: an agent reshapes the desktop, the apps and the workflows for you. core/ runs on dsh (the shell, the workbench, the connections, the agents, the boards, the box's view), box/ is the image a nookbox box runs, tools/ installs from source.",
+  "keywords": [
+    "dsh",
+    "deepseek-harness",
+    "ruyix",
+    "agent-os"
+  ],
+  "workspaces": [
+    "core/shell",
+    "core/board",
+    "core/connectors",
+    "core/workbench",
+    "core/messages",
+    "core/plugins/*",
+    "packs/*"
+  ],
+  "scripts": {
+    "dev": "node tools/dev-watch.mjs"
+  }
+}

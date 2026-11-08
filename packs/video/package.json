@@ -1,0 +1,46 @@
+{
+  "name": "@ruyix/video",
+  "version": "0.4.0",
+  "description": "Video Studio: local FFmpeg editing, reviewed timelines, playable previews and verified MP4 deliverables.",
+  "type": "module",
+  "license": "MIT",
+  "exports": {
+    ".": "./index.js",
+    "./client": "./client.js",
+    "./package.json": "./package.json"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "inject": [
+        "@deepseek-ai/dsh-client-locale"
+      ]
+    }
+  },
+  "dependencies": {
+    "@ruyix/workbench": "file:../../core/workbench"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.12"
+  },
+  "scripts": {
+    "build": "node build.mjs",
+    "check": "node --test check.mjs && node engine-check.mjs && node ui-check.mjs"
+  },
+  "files": [
+    "index.js",
+    "pack.js",
+    "studio.js",
+    "client.js",
+    "lib",
+    "skills",
+    "cordis.patch.yml",
+    "README.md"
+  ],
+  "peerDependencies": {
+    "@deepseek-ai/dsh": ">=0.2.0-rc.2 <0.3.0"
+  }
+}

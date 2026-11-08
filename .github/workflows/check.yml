@@ -1,0 +1,38 @@
+# Every package's build and self-checks on Windows, macOS and Linux (tools/check-all.mjs), and the Node installer's
+# first steps. React for the client checks is installed the way dsh ships it (react-dom 19).
+name: check
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+jobs:
+  check:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Tools
+        run: npm install -g pnpm@11
+      - name: React for the client checks
+        shell: bash
+        run: |
+          mkdir -p "$RUNNER_TEMP/react" && cd "$RUNNER_TEMP/react"
+          npm init -y >/dev/null && npm install --no-audit --no-fund react@19.2.8 react-dom@19.2.8
+          echo "RUYIX_REACT_DIR=$RUNNER_TEMP/react/node_modules" >> "$GITHUB_ENV"
+      - name: Install
+        run: npm install --no-audit --no-fund
+      - name: Build and check
+        run: node tools/check-all.mjs
+      # what a person does: install into a dsh profile (dsh from npm), start it, sign in with its link, Ruyix answers
+      - name: Install into a dsh profile
+        run: node tools/dev-install.mjs --no-browsers --no-checks
+      - name: Start and sign in
+        run: node tools/smoke.mjs

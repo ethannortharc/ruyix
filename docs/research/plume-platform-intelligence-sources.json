@@ -1,0 +1,410 @@
+{
+  "schemaVersion": 1,
+  "researchDate": "2026-10-22",
+  "purpose": "Plume xhs/x/wechat_mp platform intelligence; read-only research",
+  "sources": [
+    {
+      "id": "x-counting",
+      "platform": "x",
+      "title": "Counting Characters",
+      "url": "https://docs.x.com/fundamentals/counting-characters",
+      "publisher": "X",
+      "kind": "official_documentation",
+      "access": "direct_text",
+      "facts": [
+        "标准帖上限为 280 加权字符；普通拉丁字符权重 1，CJK 和 emoji 通常权重 2。",
+        "合法 URL 按 23 字符计；使用 NFC Unicode 规范化；官方推荐 twitter-text 处理边界。"
+      ],
+      "scope": "标准文本帖计数；不把 Premium 客户端能力推导为当前 API 长帖能力",
+      "expiresAfterDays": 30,
+      "retrievedAt": "2026-10-22",
+      "retrievalMethod": "web.search_query and/or web.open; no authenticated account changes",
+      "contentHash": null,
+      "contentHashNote": "本次工具提供提取文本/索引，未保存原始 HTTP 字节，因此不伪造内容哈希。运行时持续研究应保存实际捕获证据及其哈希。"
+    },
+    {
+      "id": "x-text-config",
+      "platform": "x",
+      "title": "twitter-text v3 configuration",
+      "url": "https://github.com/twitter/twitter-text/blob/master/config/v3.json",
+      "publisher": "twitter/twitter-text",
+      "kind": "official_open_source",
+      "access": "direct_text",
+      "facts": [
+        "v3 配置 maxWeightedTweetLength=280，transformedURLLength=23，emojiParsingEnabled=true，显式定义权重范围。"
+      ],
+      "scope": "可审计计数实现配置；master 为可变分支，生产应锁定版本",
+      "expiresAfterDays": 90,
+      "retrievedAt": "2026-10-22",
+      "retrievalMethod": "web.search_query and/or web.open; no authenticated account changes",
+      "contentHash": null,
+      "contentHashNote": "本次工具提供提取文本/索引，未保存原始 HTTP 字节，因此不伪造内容哈希。运行时持续研究应保存实际捕获证据及其哈希。"
+    },
+    {
+      "id": "x-pricing",
+      "platform": "x",
+      "title": "X API pay-per-usage pricing and credits",
+      "url": "https://docs.x.com/x-api/getting-started/pricing",
+      "publisher": "X",
+      "kind": "official_documentation",
+      "access": "direct_text",
+      "facts": [
+        "当前价目表 Post Create 为每请求 USD 0.015；with URL 为每请求 USD 0.200。",
+        "价格可能变动，当前费率以 Developer Console 为准。"
+      ],
+      "scope": "该页 pay-per-use API 写请求估算；不涵盖媒体、读取、重试等所有费用；不是曝光规则",
+      "expiresAfterDays": 7,
+      "retrievedAt": "2026-10-22",
+      "retrievalMethod": "web.search_query and/or web.open; no authenticated account changes",
+      "contentHash": null,
+      "contentHashNote": "本次工具提供提取文本/索引，未保存原始 HTTP 字节，因此不伪造内容哈希。运行时持续研究应保存实际捕获证据及其哈希。"
+    },
+    {
+      "id": "x-manage-posts",
+      "platform": "x",
+      "title": "Manage Posts introduction",
+      "url": "https://docs.x.com/x-api/posts/manage-tweets/introduction",
+      "publisher": "X",
+      "kind": "official_documentation",
+      "access": "direct_text",
+      "facts": [
+        "一帖支持最多 4 张照片、或 1 个 GIF、或 1 个视频。",
+        "当前文档说明 self-serve API 帖子最多 1 个 cashtag，回复须原作者通过提及或引用召唤回复账号。"
+      ],
+      "scope": "POST /2/tweets；本次未实发，也未确认自回复 thread 是否存在例外；不要因客户端支持 thread 就宣称该 API 账号串推已验证",
+      "expiresAfterDays": 14,
+      "retrievedAt": "2026-10-22",
+      "retrievalMethod": "web.search_query and/or web.open; no authenticated account changes",
+      "contentHash": null,
+      "contentHashNote": "本次工具提供提取文本/索引，未保存原始 HTTP 字节，因此不伪造内容哈希。运行时持续研究应保存实际捕获证据及其哈希。"
+    },
+    {
+      "id": "x-media",
+      "platform": "x",
+      "title": "Media upload best practices",
+      "url": "https://docs.x.com/x-api/media/quickstart/best-practices",
+      "publisher": "X",
+      "kind": "official_documentation",
+      "access": "direct_text",
+      "facts": [
+        "tweet_image 图片上限 5 MB，支持 JPG、PNG、GIF、WEBP。",
+        "上传成功与最终发帖通过是独立校验，返回 media_id 不等于必可发布。"
+      ],
+      "scope": "原文同时区分 GIF、视频和账号权益；Plume 当前图片发布路径",
+      "expiresAfterDays": 30,
+      "retrievedAt": "2026-10-22",
+      "retrievalMethod": "web.search_query and/or web.open; no authenticated account changes",
+      "contentHash": null,
+      "contentHashNote": "本次工具提供提取文本/索引，未保存原始 HTTP 字节，因此不伪造内容哈希。运行时持续研究应保存实际捕获证据及其哈希。"
+    },
+    {
+      "id": "x-hashtags",
+      "platform": "x",
+      "title": "How to use hashtags",
+      "url": "https://help.x.com/en/using-x/how-to-use-hashtags",
+      "publisher": "X",
+      "kind": "official_guidance",
+      "access": "direct_text",
+      "facts": [
+        "标签用于关键词/主题索引，不能包含空格或标点。",
+        "官方建议每帖不超过 2 个标签，但明确这不是数量硬上限。"
+      ],
+      "scope": "编辑建议与标签语法；不能以 3 个标签为平台拒发理由",
+      "expiresAfterDays": 30,
+      "retrievedAt": "2026-10-22",
+      "retrievalMethod": "web.search_query and/or web.open; no authenticated account changes",
+      "contentHash": null,
+      "contentHashNote": "本次工具提供提取文本/索引，未保存原始 HTTP 字节，因此不伪造内容哈希。运行时持续研究应保存实际捕获证据及其哈希。"
+    },
+    {
+      "id": "x-recommendations",
+      "platform": "x",
+      "title": "Our approach to recommendations",
+      "url": "https://help.x.com/en/rules-and-policies/recommendations",
+      "publisher": "X",
+      "kind": "official_policy_explanation",
+      "access": "direct_text",
+      "facts": [
+        "推荐依赖多种兴趣和互动信号；该页说明没有单个信号静态固定为更高权重。"
+      ],
+      "scope": "本页没有建立所有外链帖必降曝光的因果规则；未检索到证据不等于证明不存在任何链接相关特征",
+      "expiresAfterDays": 30,
+      "retrievedAt": "2026-10-22",
+      "retrievalMethod": "web.search_query and/or web.open; no authenticated account changes",
+      "contentHash": null,
+      "contentHashNote": "本次工具提供提取文本/索引，未保存原始 HTTP 字节，因此不伪造内容哈希。运行时持续研究应保存实际捕获证据及其哈希。"
+    },
+    {
+      "id": "x-photos",
+      "platform": "x",
+      "title": "How to post photos or GIFs on X",
+      "url": "https://help.x.com/en/using-x/posting-gifs-and-pictures",
+      "publisher": "X",
+      "kind": "official_guidance",
+      "access": "direct_text",
+      "facts": [
+        "单图常规比例 2:1 到 3:4 可完整显示。"
+      ],
+      "scope": "客户端显示说明；16:9 是我们的封面设计选择，不是平台唯一允许比例",
+      "expiresAfterDays": 30,
+      "retrievedAt": "2026-10-22",
+      "retrievalMethod": "web.search_query and/or web.open; no authenticated account changes",
+      "contentHash": null,
+      "contentHashNote": "本次工具提供提取文本/索引，未保存原始 HTTP 字节，因此不伪造内容哈希。运行时持续研究应保存实际捕获证据及其哈希。"
+    },
+    {
+      "id": "x-long-posts",
+      "platform": "x",
+      "title": "About different types of Posts",
+      "url": "https://help.x.com/en/using-x/types-of-posts",
+      "publisher": "X",
+      "kind": "official_documentation",
+      "access": "direct_text",
+      "facts": [
+        "长帖可达 25,000 字符，创建依赖特定付费权益。"
+      ],
+      "scope": "客户端/用户产品能力；未验证当前 Plume API connector 的实际长帖权限",
+      "expiresAfterDays": 30,
+      "retrievedAt": "2026-10-22",
+      "retrievalMethod": "web.search_query and/or web.open; no authenticated account changes",
+      "contentHash": null,
+      "contentHashNote": "本次工具提供提取文本/索引，未保存原始 HTTP 字节，因此不伪造内容哈希。运行时持续研究应保存实际捕获证据及其哈希。"
+    },
+    {
+      "id": "x-threads",
+      "platform": "x",
+      "title": "How to create a thread on X",
+      "url": "https://help.x.com/en/using-x/create-a-thread",
+      "publisher": "X",
+      "kind": "official_guidance",
+      "access": "direct_text",
+      "facts": [
+        "串推由同一作者连接多帖用于补充背景、更新或展开观点。",
+        "客户端时间线里较长串推可能折叠，单帖也可独立分享。"
+      ],
+      "scope": "客户端读写行为；首帖自足是由此推导的编辑建议，不是强制格式",
+      "expiresAfterDays": 30,
+      "retrievedAt": "2026-10-22",
+      "retrievalMethod": "web.search_query and/or web.open; no authenticated account changes",
+      "contentHash": null,
+      "contentHashNote": "本次工具提供提取文本/索引，未保存原始 HTTP 字节，因此不伪造内容哈希。运行时持续研究应保存实际捕获证据及其哈希。"
+    },
+    {
+      "id": "xhs-covenant",
+      "platform": "xhs",
+      "title": "小红书社区公约 2.0",
+      "url": "https://pgy.xiaohongshu.com/help/detail?id=1eda0a065dd894063c2e029a49e8f6a1&userType=4",
+      "publisher": "小红书蒲公英帮助中心",
+      "kind": "official_community_policy",
+      "access": "official_search_index_body_direct_page_empty",
+      "publishedAt": "2026-07-31",
+      "facts": [
+        "强调真实原创、核实存疑内容、文题相符，反对夸张猎奇和虚假人设。",
+        "建议 AI 辅助创作主动标明；商业经营应透明，勿通过非官方工具引导站外或线下交易。"
+      ],
+      "scope": "搜索结果含官方正文；直接页面为动态空壳。商业交易导流规则不能扩大为所有学术/事实引用链接必限流",
+      "expiresAfterDays": 14,
+      "retrievedAt": "2026-10-22",
+      "retrievalMethod": "web.search_query and/or web.open; no authenticated account changes",
+      "contentHash": null,
+      "contentHashNote": "本次工具提供提取文本/索引，未保存原始 HTTP 字节，因此不伪造内容哈希。运行时持续研究应保存实际捕获证据及其哈希。"
+    },
+    {
+      "id": "xhs-commerce-rule-index",
+      "platform": "xhs",
+      "title": "小红书电商学习中心规则公告",
+      "url": "https://school.xiaohongshu.com/rule/list/134",
+      "publisher": "小红书",
+      "kind": "official_rule_index",
+      "access": "search_index_body",
+      "facts": [
+        "检索到交易导流违规管理细则公告，索引所示生效日为 2026-09-18。"
+      ],
+      "scope": "仅规则入口与更新线索，本次未获取细则全文，不能据索引自动实施具体处罚规则",
+      "expiresAfterDays": 7,
+      "retrievedAt": "2026-10-22",
+      "retrievalMethod": "web.search_query and/or web.open; no authenticated account changes",
+      "contentHash": null,
+      "contentHashNote": "本次工具提供提取文本/索引，未保存原始 HTTP 字节，因此不伪造内容哈希。运行时持续研究应保存实际捕获证据及其哈希。"
+    },
+    {
+      "id": "xhs-creator",
+      "platform": "xhs",
+      "title": "小红书创作服务平台",
+      "url": "https://creator.xiaohongshu.com/",
+      "publisher": "小红书",
+      "kind": "official_product_entry",
+      "access": "direct_page_empty",
+      "facts": [],
+      "scope": "动态/登录编辑器；标题/正文/图数的账号实际限制本次未实测",
+      "expiresAfterDays": 14,
+      "retrievedAt": "2026-10-22",
+      "retrievalMethod": "web.search_query and/or web.open; no authenticated account changes",
+      "contentHash": null,
+      "contentHashNote": "本次工具提供提取文本/索引，未保存原始 HTTP 字节，因此不伪造内容哈希。运行时持续研究应保存实际捕获证据及其哈希。"
+    },
+    {
+      "id": "xhs-mcp-readme",
+      "platform": "xhs",
+      "title": "xiaohongshu-mcp README",
+      "url": "https://github.com/xpzouying/xiaohongshu-mcp",
+      "publisher": "xpzouying",
+      "kind": "third_party_original_open_source",
+      "access": "direct_text",
+      "facts": [
+        "该社区实现 README 使用标题 20 字、正文 1000 字的约束，并包含作者个人运营经验。"
+      ],
+      "scope": "不是官方规则；作者流量结论/日发帖数不能升级为通用事实；与仓内 skill 标题计数不一致",
+      "expiresAfterDays": 30,
+      "retrievedAt": "2026-10-22",
+      "retrievalMethod": "web.search_query and/or web.open; no authenticated account changes",
+      "contentHash": null,
+      "contentHashNote": "本次工具提供提取文本/索引，未保存原始 HTTP 字节，因此不伪造内容哈希。运行时持续研究应保存实际捕获证据及其哈希。"
+    },
+    {
+      "id": "xhs-publish-skill",
+      "platform": "xhs",
+      "title": "post-to-xhs SKILL.md",
+      "url": "https://github.com/xpzouying/xiaohongshu-mcp/blob/main/skills/post-to-xhs/SKILL.md",
+      "publisher": "xpzouying/xiaohongshu-mcp",
+      "kind": "third_party_original_skill",
+      "access": "direct_text",
+      "facts": [
+        "区分上传图文与长文流程、显式呈现内容确认、上传后检查结果。",
+        "该 skill 标题规则为 CJK 权重 2、总权重≤38，与 README 简述存在差异。"
+      ],
+      "scope": "借鉴流程模式；未安装、未执行；不能把其阈值或自动发布策略当作我们的授权或官方规定",
+      "expiresAfterDays": 30,
+      "retrievedAt": "2026-10-22",
+      "retrievalMethod": "web.search_query and/or web.open; no authenticated account changes",
+      "contentHash": null,
+      "contentHashNote": "本次工具提供提取文本/索引，未保存原始 HTTP 字节，因此不伪造内容哈希。运行时持续研究应保存实际捕获证据及其哈希。"
+    },
+    {
+      "id": "wechat-draft-official",
+      "platform": "wechat_mp",
+      "title": "新增草稿（旧官方开发文档）",
+      "url": "https://developers.weixin.qq.com/doc/offiaccount/Draft_Box/Add_draft.html",
+      "publisher": "微信",
+      "kind": "official_documentation",
+      "access": "unavailable",
+      "facts": [],
+      "scope": "本次抓取失败；不能宣称 32/120/16/20000 数值已被本次官方验证",
+      "expiresAfterDays": 7,
+      "retrievedAt": "2026-10-22",
+      "retrievalMethod": "web.search_query and/or web.open; no authenticated account changes",
+      "contentHash": null,
+      "contentHashNote": "本次工具提供提取文本/索引，未保存原始 HTTP 字节，因此不伪造内容哈希。运行时持续研究应保存实际捕获证据及其哈希。"
+    },
+    {
+      "id": "wechat-draft-service",
+      "platform": "wechat_mp",
+      "title": "新增草稿（服务号新文档候选）",
+      "url": "https://developers.weixin.qq.com/doc/service/api/draftbox/draftmanage/api_draft_add.html",
+      "publisher": "微信",
+      "kind": "official_documentation_candidate",
+      "access": "unavailable",
+      "facts": [],
+      "scope": "本次抓取失败；候选路径不视为已验证 canonical 或可用",
+      "expiresAfterDays": 7,
+      "retrievedAt": "2026-10-22",
+      "retrievalMethod": "web.search_query and/or web.open; no authenticated account changes",
+      "contentHash": null,
+      "contentHashNote": "本次工具提供提取文本/索引，未保存原始 HTTP 字节，因此不伪造内容哈希。运行时持续研究应保存实际捕获证据及其哈希。"
+    },
+    {
+      "id": "wechat-draft-subscription",
+      "platform": "wechat_mp",
+      "title": "新增草稿（订阅号新文档候选）",
+      "url": "https://developers.weixin.qq.com/doc/subscription/api/draftbox/draftmanage/api_draft_add.html",
+      "publisher": "微信",
+      "kind": "official_documentation_candidate",
+      "access": "unavailable",
+      "facts": [],
+      "scope": "本次抓取失败；候选路径不视为已验证 canonical 或可用",
+      "expiresAfterDays": 7,
+      "retrievedAt": "2026-10-22",
+      "retrievalMethod": "web.search_query and/or web.open; no authenticated account changes",
+      "contentHash": null,
+      "contentHashNote": "本次工具提供提取文本/索引，未保存原始 HTTP 字节，因此不伪造内容哈希。运行时持续研究应保存实际捕获证据及其哈希。"
+    },
+    {
+      "id": "wechat-wxjava",
+      "platform": "wechat_mp",
+      "title": "WxJava WxMpDraftService.java",
+      "url": "https://github.com/binarywang/WxJava/blob/develop/weixin-java-mp/src/main/java/me/chanjar/weixin/mp/api/WxMpDraftService.java",
+      "publisher": "binarywang/WxJava",
+      "kind": "third_party_original_open_source",
+      "access": "direct_text",
+      "facts": [
+        "该 SDK 注释描述 draft API 的 HTML 内容少于 2 万字符、小于 1 MB，去 JS，正文图片需上传 API 得到 URL，外链图片可能过滤。"
+      ],
+      "scope": "API 注释是社区实现的证据，不是手工粘贴编辑器的当前官方限制；HTML 体积与纯文本长度不可混同",
+      "expiresAfterDays": 30,
+      "retrievedAt": "2026-10-22",
+      "retrievalMethod": "web.search_query and/or web.open; no authenticated account changes",
+      "contentHash": null,
+      "contentHashNote": "本次工具提供提取文本/索引，未保存原始 HTTP 字节，因此不伪造内容哈希。运行时持续研究应保存实际捕获证据及其哈希。"
+    },
+    {
+      "id": "wechat-doocs",
+      "platform": "wechat_mp",
+      "title": "doocs/md WeChat Markdown Editor",
+      "url": "https://github.com/doocs/md",
+      "publisher": "doocs",
+      "kind": "third_party_original_open_source",
+      "access": "direct_text",
+      "facts": [
+        "项目实现 Markdown 编辑、主题和微信公众号排版流程。"
+      ],
+      "scope": "可借鉴预览/HTML 导出/粘贴工作流；不作为微信账号权限或官方调性结论",
+      "expiresAfterDays": 90,
+      "retrievedAt": "2026-10-22",
+      "retrievalMethod": "web.search_query and/or web.open; no authenticated account changes",
+      "contentHash": null,
+      "contentHashNote": "本次工具提供提取文本/索引，未保存原始 HTTP 字节，因此不伪造内容哈希。运行时持续研究应保存实际捕获证据及其哈希。"
+    },
+    {
+      "id": "wechat-operation-policy",
+      "platform": "wechat_mp",
+      "title": "微信公众平台运营规范入口",
+      "url": "https://mp.weixin.qq.com/cgi-bin/readtemplate?t=business/faq_operation_tmpl&type=info&lang=zh_CN",
+      "publisher": "微信",
+      "kind": "official_policy_candidate",
+      "access": "unavailable",
+      "facts": [],
+      "scope": "本次未读到内容，不将预期条文标成已验证",
+      "expiresAfterDays": 7,
+      "retrievedAt": "2026-10-22",
+      "retrievalMethod": "web.search_query and/or web.open; no authenticated account changes",
+      "contentHash": null,
+      "contentHashNote": "本次工具提供提取文本/索引，未保存原始 HTTP 字节，因此不伪造内容哈希。运行时持续研究应保存实际捕获证据及其哈希。"
+    }
+  ],
+  "unsupportedClaims": [
+    {
+      "platform": "xhs",
+      "claim": "所有站外链接和联系方式都会限流",
+      "status": "unsupported_generalization",
+      "replacement": "商业站外导流可能触及相关规则；内容引用链接的可点击性和账号限制需按实际路径核验，不承诺曝光。"
+    },
+    {
+      "platform": "xhs",
+      "claim": "本次推荐话题具有高搜索量",
+      "status": "not_measured",
+      "replacement": "按内容相关性选择话题；仅在有带时间窗口和来源的真实指标时描述搜索量。"
+    },
+    {
+      "platform": "x",
+      "claim": "含链接帖子必然降低曝光",
+      "status": "unsupported_causal_claim",
+      "replacement": "说明可验证的 URL 字符计数及当前 API 估算费用，保留必要来源。"
+    },
+    {
+      "platform": "wechat_mp",
+      "claim": "所有个人号的外链都不能点击，32 字以上标题手工粘贴一定没问题",
+      "status": "not_currently_verified_for_route",
+      "replacement": "以当前账号和最终编辑器预览为准；区分产品阈值、API 文档与手工粘贴路径。"
+    }
+  ]
+}

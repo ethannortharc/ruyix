@@ -1,0 +1,10 @@
+/* the names, the buttons and the windows on this map (.wd-<id>; windows: .ad-root[data-world="<id>"]) */
+.wd-blueprint { color: #f2f7ff; font-family: ui-monospace, "SF Mono", Menlo, monospace; }
+.wd-blueprint .wd-icon svg { stroke: #f2f7ff; fill: none; }
+.wd-blueprint .wd-name, .wd-blueprint .wd-task { text-shadow: 0 0 6px #123a6b, 0 0 2px #123a6b; }
+.wd-blueprint .wd-count { background: #ffd27a; color: #123a6b; }
+.wd-blueprint .wd-tip { background: #0f3360; color: #f2f7ff; box-shadow: 0 0 0 1px #e8f1ff; }
+.wd-blueprint .wd-hud button { background: #0f3360; color: #f2f7ff; box-shadow: inset 0 0 0 1px rgba(232, 241, 255, .6); }
+.ad-root[data-world="blueprint"] :is(.ad-win, .ad-xwin) { box-shadow: 0 0 0 1px #e8f1ff, 0 0 0 5px #123a6b, 0 0 0 6px rgba(232, 241, 255, .6), 0 24px 60px rgba(0, 0, 0, .45); }
+.ad-root[data-world="blueprint"] :is(.ad-win, .ad-xwin) .ad-titlebar { background: #123a6b; color: #f2f7ff; }
+.ad-root[data-world="blueprint"] :is(.ad-win, .ad-xwin) .ad-title { color: #f2f7ff; }

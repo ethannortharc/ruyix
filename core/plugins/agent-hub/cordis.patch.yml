@@ -1,0 +1,3 @@
+- insert:
+    - id: agent-hub
+      name: '@ruyix/agent-hub'

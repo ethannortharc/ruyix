@@ -1,0 +1,47 @@
+/* ── the star map: lines of light ── */
+.wd-sky { color: rgba(236, 242, 255, .94); }
+.wd-sky .wd-icon svg { stroke: #d8e6ff; fill: none; filter: drop-shadow(0 0 3px rgba(140, 190, 255, .9)) drop-shadow(0 0 10px rgba(110, 150, 255, .5)); }
+.wd-sky .wd-icon .wd-red { stroke: #ffb46a; }
+.wd-sky .wd-icon-own { color: #d8e6ff; }
+.wd-sky .wd-name, .wd-sky .wd-task { text-shadow: 0 1px 10px rgba(0, 0, 0, .8), 0 0 2px rgba(0, 0, 0, .7); }
+.wd-sky .wd-wait span { color: #ffc56b; opacity: 1; font-weight: var(--ruyix-weight-medium); }
+.wd-sky .wd-count { background: #ffb43c; color: #1a1205; box-shadow: 0 0 12px rgba(255, 180, 60, .8); }
+.wd-sky .wd-tip { background: rgba(14, 18, 36, .94); color: #e6eeff; box-shadow: 0 0 0 1px rgba(140, 180, 255, .35), 0 8px 24px rgba(0, 0, 0, .5); }
+.wd-sky .wd-hud button { background: rgba(14, 18, 38, .72); color: #dfe8ff; box-shadow: inset 0 0 0 1px rgba(140, 180, 255, .35); backdrop-filter: blur(8px); }
+.wd-sky .wd-hud button:hover { background: rgba(30, 38, 70, .85); }
+.wd-sky .wd-hud .wd-on { background: rgba(255, 180, 70, .22); color: #ffd28a; box-shadow: inset 0 0 0 1px rgba(255, 190, 90, .8), 0 0 16px rgba(255, 170, 60, .45); }
+.wd-sky .wd-cartouche { color: #e6eeff; text-shadow: 0 0 12px rgba(120, 160, 255, .7); }
+.wd-sky .wd-k-launch .wd-name b { color: #ffc0cf; }
+
+/* a place is its constellation and nothing else: no picture, no count (its stars turn amber when something waits); the
+   whole figure answers the pointer (--fig: its reach, set as one looks round), and its name shows only then, below it */
+.wd-sky .wd-place:not(.wd-k-clock) .wd-pic { left: calc(-1 * var(--fig, 30px)); top: calc(-1 * var(--fig, 30px)); width: calc(2 * var(--fig, 30px)); height: calc(2 * var(--fig, 30px));
+  border-radius: 50%; corner-shape: round; transform: none; }
+.wd-sky .wd-place:not(.wd-k-clock) :is(.wd-icon, .wd-count) { display: none; }
+.wd-sky .wd-place:not(.wd-k-clock) .wd-name { top: calc(var(--fig, 30px) + 8px); opacity: 0; transform: translate(-50%, -4px); transition: opacity .2s ease, transform .2s ease; }
+.wd-sky .wd-place:is(:hover, :focus-visible, .wd-hot) .wd-name { opacity: 1; transform: translate(-50%, 0); }
+.wd-sky .wd-place:focus-visible { outline: none; }
+.wd-sky .wd-place:focus-visible .wd-pic { box-shadow: 0 0 0 1px rgba(170, 200, 255, .45); }
+/* a task's words too: only when one points at it */
+.wd-sky .wd-task :is(b, span) { opacity: 0; transition: opacity .2s ease; }
+.wd-sky .wd-task:is(:hover, :focus-visible, .wd-hot) :is(b, span) { opacity: 1; }
+/* its windows: a glow round them */
+.ad-root[data-world="sky"] :is(.ad-win, .ad-xwin) { box-shadow: 0 0 0 1px rgba(140, 180, 255, .45), 0 0 36px rgba(100, 140, 255, .28), 0 26px 70px rgba(0, 0, 0, .6); }
+.ad-root[data-world="sky"] :is(.ad-win, .ad-xwin) .ad-title { color: #d6e4ff; }
+.ad-root[data-world="sky"] :is(.ad-win, .ad-xwin) .ad-titlebar { background: rgba(12, 16, 34, .94); color: #d6e4ff; border-bottom: 1px solid rgba(140, 180, 255, .25); }
+/* windows one sees the map through (desktop.json transparency): the title bar too */
+:root[data-ruyix-see] .ad-root[data-world="sky"] :is(.ad-win, .ad-xwin) .ad-titlebar { background: color-mix(in srgb, rgb(12, 16, 34) var(--ad-see-card), transparent); }
+/* what is done and not looked at, beside the records' place */
+.wd-sky .wd-done { background: rgba(14, 18, 36, .94); color: #e6eeff; box-shadow: 0 0 0 1px rgba(140, 180, 255, .35), 0 10px 30px rgba(0, 0, 0, .5); backdrop-filter: blur(10px); }
+.wd-sky .wd-done button:hover { background: rgba(140, 180, 255, .12); }
+.wd-sky .wd-done-dot { background: #8cf0b4; box-shadow: 0 0 8px rgba(140, 240, 180, .8); }
+/* the open things' groups (the shell's cards at the left), in this map's material */
+.ad-root[data-world="sky"] :is(.ad-group-card, .ad-group-list) { background: rgba(14, 18, 36, .86); color: #e6eeff; box-shadow: 0 0 0 1px rgba(140, 180, 255, .3), 0 10px 26px rgba(0, 0, 0, .45); backdrop-filter: blur(10px); }
+.ad-root[data-world="sky"] .ad-group.ad-on .ad-group-card { box-shadow: 0 0 0 1.5px rgba(160, 196, 255, .9), 0 0 18px rgba(120, 160, 255, .4); }
+/* the work going on (the shell's strip, under the cards), in this map's material */
+.ad-root[data-world="sky"] :is(.ad-ly-lane, .ad-dn-w, .ad-strip-pop) { background: rgba(14, 18, 36, .82); color: #e6eeff; box-shadow: 0 0 0 1px rgba(140, 180, 255, .28), 0 10px 26px rgba(0, 0, 0, .45); backdrop-filter: blur(10px); }
+.ad-root[data-world="sky"] .ad-strip { --ad-text: #e6eeff; --ad-text-2: #9fb0d8; }
+.ad-root[data-world="sky"] .ad-ly-line:not(.ad-ly-old) { text-shadow: 0 0 10px rgba(140, 180, 255, .55); }
+.ad-root[data-world="sky"] .ad-strip-h { color: #b8c8f0; text-shadow: 0 0 8px rgba(120, 160, 255, .6); }
+/* the version, small in the corner, in this map's lettering */
+.ad-root[data-world="sky"] .wd-version { color: #b8c8f0; text-shadow: 0 0 6px rgba(120, 160, 255, .5); }

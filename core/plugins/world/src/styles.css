@@ -1,0 +1,70 @@
+/* The interactive desk (src/world.jsx): the ground, the places, the tasks' words, the agents, the view's buttons — and
+   the windows in the map's own frame. .wd-atlas: ink on paper, a Song face; .wd-sky: lines of light on the night. */
+.ad-world { position: fixed; inset: 0; z-index: 0; overflow: hidden; user-select: none; -webkit-user-select: none; }
+.wd-ground { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.wd-layer { position: absolute; inset: 0; cursor: grab; touch-action: none; }
+.wd-layer:active { cursor: grabbing; }
+
+/* a place: a 0 × 0 point the picture and its name hang round */
+.wd-place { position: absolute; left: 0; top: 0; width: 0; height: 0; padding: 0; border: 0; background: none; cursor: pointer; will-change: transform; }
+.wd-pic { position: absolute; left: -30px; top: -30px; width: 60px; height: 60px; display: grid; place-items: center; transition: transform .18s ease; }
+.wd-icon { position: relative; width: 52px; height: 52px; display: block; }
+.wd-icon svg { width: 100%; height: 100%; stroke-width: 2.2; }
+.wd-icon-own { position: absolute; inset: 0; display: grid; place-items: center; }
+.wd-name { position: absolute; left: 0; top: 30px; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 1px; white-space: nowrap; text-align: center; pointer-events: none; }
+.wd-name b { font-size: var(--ruyix-text-sm); font-weight: var(--ruyix-weight-semibold); letter-spacing: .04em; }
+.wd-name span { font-size: var(--ruyix-text-xs); opacity: .78; }
+.wd-place:hover .wd-pic, .wd-hot .wd-pic, .wd-place:focus-visible .wd-pic { transform: scale(1.1) translateY(-2px); }
+.wd-count { position: absolute; right: 0; top: 0; min-width: 20px; height: 20px; padding: 0 5px; box-sizing: border-box; border-radius: var(--ruyix-radius-pill); corner-shape: round;
+  display: grid; place-items: center; font: 600 var(--ruyix-text-2xs)/1 var(--ruyix-font, system-ui); font-style: normal; }
+.wd-k-capital .wd-pic { left: -40px; top: -40px; width: 80px; height: 80px; }
+.wd-k-capital .wd-icon { width: 72px; height: 72px; }
+.wd-k-capital .wd-name { top: 40px; }
+.wd-k-capital .wd-name b { font-size: var(--ruyix-text-md); }
+
+/* a task's words over its island (its ring) */
+.wd-task { position: absolute; left: 0; top: 0; width: 0; height: 0; padding: 0; border: 0; background: none; cursor: pointer; will-change: transform; }
+.wd-task b, .wd-task span { position: absolute; left: 0; transform: translateX(-50%); white-space: nowrap; }
+.wd-task b { top: 4px; font-size: var(--ruyix-text-sm); font-weight: var(--ruyix-weight-semibold); letter-spacing: .03em; max-width: 240px; overflow: hidden; text-overflow: ellipsis; }
+.wd-task span { top: 22px; font-size: var(--ruyix-text-xs); opacity: .78; font-variant-numeric: tabular-nums; }
+.wd-up { opacity: .65; }
+.wd-task.wd-hot, .wd-task:hover { opacity: 1; }
+
+/* an agent on its station (its star) */
+.wd-star { position: absolute; left: 0; top: 0; width: 26px; height: 26px; padding: 0; border: 0; border-radius: 50%; corner-shape: round; background: none; cursor: pointer; will-change: transform; }
+.wd-tip { position: absolute; left: 50%; top: calc(100% + 8px); transform: translateX(-50%); display: none; flex-direction: column; gap: 1px; min-width: 150px; max-width: 260px; padding: 6px 9px;
+  border-radius: var(--ruyix-radius); font-size: var(--ruyix-text-xs); line-height: 1.4; text-align: left; white-space: normal; pointer-events: none; z-index: 3; }
+.wd-tip b { font-size: var(--ruyix-text-sm); }
+.wd-tip em { font-style: normal; opacity: .7; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.wd-star:hover .wd-tip, .wd-star:focus-visible .wd-tip { display: flex; }
+
+/* the view's buttons, low on the right */
+.wd-hud { position: absolute; right: 18px; bottom: 18px; display: flex; gap: 6px; z-index: 2; }
+.wd-hud button { min-width: 34px; height: 30px; padding: 0 10px; border-radius: var(--ruyix-radius); cursor: pointer; font: inherit; font-size: var(--ruyix-text-sm); }
+.wd-hud .wd-hud-icon { display: grid; place-items: center; padding: 0; }
+.wd-hud-gap { width: 6px; }
+/* listening: the map's own accent, breathing */
+.wd-hud .wd-on { animation: wd-listen 1.4s ease-in-out infinite; }
+@keyframes wd-listen { 50% { filter: brightness(1.25); } }
+@media (prefers-reduced-motion: reduce) { .wd-hud .wd-on { animation: none; } }
+.wd-cartouche { position: absolute; left: 0; top: 0; transform: translate(-50%, -50%); display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 10px 22px; white-space: nowrap; }
+.wd-cartouche b { font-size: var(--ruyix-text-md); font-weight: var(--ruyix-weight-semibold); letter-spacing: .06em; }
+.wd-cartouche span { font-size: var(--ruyix-text-2xl); font-weight: 300; font-variant-numeric: tabular-nums; letter-spacing: .02em; }
+
+.ad-world-fail { position: fixed; inset: 40% 20% auto; text-align: center; color: #fff; background: rgba(0, 0, 0, .6); padding: 16px; border-radius: var(--ruyix-radius-lg); }
+
+/* what is done and not looked at, beside the records' place */
+.wd-done { position: absolute; z-index: 3; transform: translate(-50%, 30px); display: flex; flex-direction: column; gap: 2px; min-width: 240px; max-width: 340px; padding: 8px;
+  border-radius: var(--ruyix-radius-lg); font-size: var(--ruyix-text-sm); }
+.wd-done > b { padding: 2px 8px 6px; font-size: var(--ruyix-text-xs); font-weight: var(--ruyix-weight-semibold); opacity: .75; letter-spacing: .04em; }
+.wd-done button { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 8px; padding: 6px 8px; border-radius: var(--ruyix-radius); cursor: pointer; color: inherit; text-align: left; }
+.wd-done button span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.wd-done button small { font-size: var(--ruyix-text-xs); opacity: .7; font-variant-numeric: tabular-nums; }
+.wd-done-dot { width: 8px; height: 8px; border-radius: 50%; corner-shape: round; background: var(--ruyix-success); }
+.wd-done-dot.wd-done-bad { background: var(--ruyix-danger); }
+/* the right-click menu (the desk's own menu look) and the version, small in a corner */
+.ad-world .wd-menu { position: absolute; z-index: 30; min-width: 220px; }
+.wd-menu .ad-mi small { margin-left: auto; opacity: .6; }
+.wd-menu-cap { padding: 2px 10px 4px; font-size: var(--ruyix-text-2xs); font-weight: var(--ruyix-weight-semibold); opacity: .6; }
+.wd-menu-tick { display: inline-block; width: 12px; text-align: center; }
+.wd-version { position: absolute; z-index: 2; top: 24px; right: 30px; font-size: var(--ruyix-text-2xs); letter-spacing: .02em; opacity: .7; pointer-events: auto; user-select: text; }

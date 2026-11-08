@@ -1,0 +1,34 @@
+{
+  "name": "@ruyix/newsletter",
+  "version": "0.4.0",
+  "type": "module",
+  "license": "MIT",
+  "description": "Evidence-backed research, editorial review, and local newsletter exports for Ruyix.",
+  "exports": {
+    ".": "./index.js",
+    "./package.json": "./package.json"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    }
+  },
+  "dependencies": {
+    "@ruyix/workbench": "file:../../core/workbench"
+  },
+  "scripts": {
+    "build": "node build.mjs",
+    "check": "node check.mjs && node engine-check.mjs"
+  },
+  "files": [
+    "index.js",
+    "pack.js",
+    "studio.js",
+    "lib",
+    "cordis.patch.yml",
+    "README.md"
+  ],
+  "peerDependencies": {
+    "@deepseek-ai/dsh": ">=0.2.0-rc.2 <0.3.0"
+  }
+}
