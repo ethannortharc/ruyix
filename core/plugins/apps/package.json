@@ -1,6 +1,6 @@
 {
   "name": "@ruyix/apps",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "The App Center: install Linux software into the nookbox box with one click; graphical apps open as windows on Ruyix's desktop (a virtual display per app, drawn in the browser over VNC). Part of Ruyix, the agent OS built on DSH (DeepSeek Harness).",
   "keywords": [
     "dsh",

@@ -1,6 +1,6 @@
 {
   "name": "@ruyix/connectors",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "Connections to the services Ruyix reaches — GitLab, Kubernetes, any HTTP API: one place to add, test and sign in; credentials in dsh's store; the products reach the services only through it. Part of Ruyix, the agent OS built on DSH (DeepSeek Harness).",
   "keywords": [
     "dsh",

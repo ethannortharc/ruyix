@@ -1,6 +1,6 @@
 {
   "name": "@ruyix/box",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "The nookbox box this dsh runs in, inside dsh: what the box is, what it sent and received, what ran in it, what models it used — read from the box's own nookbox window, nothing to manage from inside. Part of Ruyix, the agent OS built on DSH (DeepSeek Harness).",
   "keywords": [
     "dsh",

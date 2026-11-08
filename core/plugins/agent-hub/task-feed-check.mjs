@@ -163,4 +163,11 @@ assert.deepEqual(Object.keys(sources), [])
   assert.deepEqual([made.get(t9).state, made.get(t9).result], ['failed', '✗ the model is down'])
   docs.session.splice(docs.session.indexOf(s9), 1); last()
 }
+{
+  // the store closed with the plugin before this feed went (the agent-hub check once died of it): a tick does nothing
+  const closed = { docs() { throw Object.assign(new Error('database is not open'), { code: 'ERR_INVALID_STATE' }) } }
+  const late = createTaskFeed({ tasks, sessions, store: closed, every: 1e9, stopJob: () => {} })
+  assert.doesNotThrow(() => late.tick(), 'a tick after the store closed')
+  late.dispose()
+}
 console.log('agent-hub task feed check: ok')

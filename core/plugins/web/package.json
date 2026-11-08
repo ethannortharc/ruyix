@@ -1,6 +1,6 @@
 {
   "name": "@ruyix/web",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "Searching the web and fetching pages for every agent, as this Ruyix is set up to: DeepSeek, Tavily, 博查, Exa or Brave for search; a guarded direct fetch, Jina Reader or DeepSeek Fetch for pages — keys kept like model keys. Part of Ruyix, the agent OS built on DSH (DeepSeek Harness).",
   "keywords": [
     "dsh",

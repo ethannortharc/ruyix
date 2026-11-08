@@ -3279,7 +3279,8 @@ const agentStep = (id, extra = {}) => ({ id, use: 'agent', title: id, agent: 'sc
     return a.call('stage_result', { result: { ok: true, summary: 'sent' } })
   }
   seen = (await op('startRun', { workflow: 'big-body', title: 'big' })).run.id
-  assert.equal((await finished(seen)).status, 'done')
+  const big = await finished(seen)
+  assert.equal(big.status, 'done', big.stages.map(s => `${s.key}: ${s.status} ${s.note || ''}`).join('\n'))
 }
 {
   // L1: a step's token goes when the step is over — its agent cannot write to the step after it, or to the run after it

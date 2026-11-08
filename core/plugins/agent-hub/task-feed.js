@@ -183,9 +183,13 @@ export function createTaskFeed({ tasks, sessions, store, followUp, stopJob, ever
   let since = 0
   function tick() {
     const from = since
+    let sessions, jobs
+    // (the store closes with the plugin, which may be a moment before this feed goes: nothing to keep in step then —
+    // a throw here, in a timer, would take the whole process down)
+    try { sessions = store.docs('session'); jobs = store.docs('job') } catch { return }
     since = Date.now()
-    for (const d of store.docs('session')) if ((d.updatedAt || 0) >= from - 1000) try { syncSession(d) } catch (err) { log(`agent-hub: session ${d.id} → its task: ${err.message}`) }
-    for (const j of store.docs('job')) if ((j.updatedAt || 0) >= from - 1000) try { syncJob(j) } catch (err) { log(`agent-hub: job ${j.id} → its task: ${err.message}`) }
+    for (const d of sessions) if ((d.updatedAt || 0) >= from - 1000) try { syncSession(d) } catch (err) { log(`agent-hub: session ${d.id} → its task: ${err.message}`) }
+    for (const j of jobs) if ((j.updatedAt || 0) >= from - 1000) try { syncJob(j) } catch (err) { log(`agent-hub: job ${j.id} → its task: ${err.message}`) }
   }
   const timer = setInterval(tick, every)
   timer.unref?.()

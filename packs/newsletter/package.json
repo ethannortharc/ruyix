@@ -1,6 +1,6 @@
 {
   "name": "@ruyix/newsletter",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "type": "module",
   "license": "MIT",
   "description": "Evidence-backed research, editorial review, and local newsletter exports for Ruyix.",

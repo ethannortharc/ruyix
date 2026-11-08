@@ -1,6 +1,6 @@
 {
   "name": "@ruyix/messages",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "Messages between agents: one SQLite space that agents working together post to and read from (hand-offs, decisions, questions) — a library, a command and an MCP server, with a skill that says how to use them. Not a record; needs no dsh: Claude Code and Codex sessions on one machine can share a space too. Part of Ruyix, the agent OS built on DSH (DeepSeek Harness).",
   "keywords": [
     "agents",

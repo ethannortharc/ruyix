@@ -1,6 +1,6 @@
 {
   "name": "@ruyix/world",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "The interactive desk: the whole desktop as one map you play on — the old map or the star map — every page, task and agent a place on it. Part of Ruyix, the agent OS built on DSH (DeepSeek Harness).",
   "keywords": [
     "dsh",

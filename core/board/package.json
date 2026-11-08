@@ -1,6 +1,6 @@
 {
   "name": "@ruyix/board",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "Boards: the dataset, dashboard, preset and layout schema, the built-in presets, and the one renderer — for the boards an agent proposes and the ones drawn in a conversation. Part of Ruyix, the agent OS built on DSH (DeepSeek Harness).",
   "keywords": [
     "dsh",

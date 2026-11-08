@@ -1,6 +1,6 @@
 {
   "name": "@ruyix/agent-hub",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "Agent Hub: one command center for every agent and Agent Team — live working status, attention inbox, team boards, quick replies. Part of Ruyix, the agent OS built on DSH (DeepSeek Harness).",
   "keywords": [
     "dsh",

@@ -1,6 +1,6 @@
 {
   "name": "@ruyix/plume",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "Plume pack for the Ruyix workbench: one piece of content to 小红书, X and 公众号 — research, a master draft you review, a version per platform with its cards, checked against each platform's rules, then a publish card per platform (X through its API, 小红书 filled in a browser you watch, 公众号 copied in). Part of Ruyix, the agent OS built on DSH (DeepSeek Harness).",
   "keywords": [
     "dsh",

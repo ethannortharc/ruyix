@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.4.1 — 2026-11-08
+
+Fixes for the first public release. Upgrade with `ruyix upgrade`.
+
+### Fixed
+
+- An agent saving a large file (hundreds of KB) could fail with `write EPIPE` on Node 22 on macOS: the tools client
+  now ends a request only after its body is written.
+- Agent Hub could take the whole process down when it shut down: its task sync no longer reads the closed store.
+
+### Changed
+
+- Platforms are macOS and Linux; Windows is not supported yet (several parts use Unix sockets). CI runs on both.
+
 ## 0.4.0 — 2026-11-08
 
 The first public release.

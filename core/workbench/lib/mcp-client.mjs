@@ -20,6 +20,8 @@ export function toolsPost(url, token, path, body, { timeout = 20000 } = {}) {
       })
     })
     req.on('timeout', () => req.destroy(new Error(`no answer within ${timeout / 1000} s`))).on('error', no)
-    req.end(data)
+    // the body first, end() once it is written: Node 22's end(data) sends an empty chunk after a body too big for one write;
+    // the endpoint has the whole body by then, answers and closes, and on macOS that 0-byte write fails with EPIPE
+    req.write(data, err => { if (!err) req.end() })
   })
 }

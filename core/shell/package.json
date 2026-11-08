@@ -1,6 +1,6 @@
 {
   "name": "@ruyix/shell",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "Ruyix's shell over DSH — the desktop, the brand, the home page, the one Settings page, what an agent may propose to change (and undo), and the ruyix command. Part of Ruyix, the agent OS built on DSH (DeepSeek Harness).",
   "keywords": [
     "dsh",

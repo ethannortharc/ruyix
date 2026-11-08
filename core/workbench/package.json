@@ -1,6 +1,6 @@
 {
   "name": "@ruyix/workbench",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "Workbench: workflows run by a team of agents, every step on a hash-chained evidence ledger, the person's approval before anything leaves the machine; domain packs plug in their workflows, tools and actions.",
   "type": "module",
   "license": "MIT",

@@ -1,6 +1,6 @@
 {
   "name": "@ruyix/studio",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "Studios: one end-to-end line of work (what to make, how, with what, what came of it) pulled out of the whole system, with a home page of its own — records, materials, starting a workflow from a record. Part of Ruyix, the agent OS built on DSH (DeepSeek Harness).",
   "keywords": [
     "dsh",
