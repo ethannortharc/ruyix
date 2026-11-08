@@ -13,7 +13,7 @@ is customization — say what you want, and an agent changes the desk, the apps 
 changes until you apply it, and every change can be undone.
 
 It is a set of plugins for [DSH](https://www.npmjs.com/package/@deepseek-ai/dsh) (DeepSeek Harness). It runs on
-macOS, Linux and Windows, and can run whole inside a microVM so agents may change anything in there without
+macOS and Linux (not on Windows yet), and can run whole inside a microVM so agents may change anything in there without
 reaching your computer.
 
 *Ruyi* (如意) means "as you wish".
@@ -155,7 +155,8 @@ How each part was designed is written down in [docs/design/](docs/design/) (in C
 
 Ruyix is a personal project in active use, released as it is. The package names, the desk file and the APIs may
 still change between minor versions. Releases are published to the author's own npm registry; installing from this
-repository is the way for everyone else. The box needs nookbox, a separate project that is not public yet — without
+repository is the way for everyone else. Windows is not supported yet: several parts talk over Unix sockets, and its checks
+fail there. The box needs nookbox, a separate project that is not public yet — without
 it, Ruyix runs directly on your computer.
 
 DSH (DeepSeek Harness) is a DeepSeek product; Ruyix is an independent project, not made by DeepSeek.

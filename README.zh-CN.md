@@ -11,7 +11,7 @@ Ruyix 是给智能体用的桌面。它们在看得见、改得了的工作流�
 任何要离开这台机器的操作都先等你点头。它的核心是定制——你说要什么，智能体就把桌面、应用和工作流改成什么样；
 你点了「应用」才生效，每个改动都能撤销。
 
-它是一组 [DSH](https://www.npmjs.com/package/@deepseek-ai/dsh)（DeepSeek Harness）插件，macOS、Linux、Windows 都能跑；
+它是一组 [DSH](https://www.npmjs.com/package/@deepseek-ai/dsh)（DeepSeek Harness）插件，macOS 和 Linux 上能跑（Windows 暂时不行）；
 也可以整个放进一台 microVM，智能体在里面想改什么都行，碰不到你的电脑。
 
 名字取自「如意」：照你的意思来。图标是方胜纹：两个方框斜放相叠，寓意同心、吉祥。
@@ -140,7 +140,7 @@ ruyix desk widget add note sm
 ## 现状
 
 Ruyix 是一个在日常使用中的个人项目，按现在的样子发布。包名、桌面文件和接口在小版本之间还可能变。正式版本发布在作者自己的 npm 源上，
-其他人从这个仓库安装。盒子需要 nookbox，那是另一个还没公开的项目；没有它，Ruyix 直接跑在你的电脑上。
+其他人从这个仓库安装。Windows 暂不支持：有几部分靠 Unix 套接字通信，在 Windows 上自检过不去。盒子需要 nookbox，那是另一个还没公开的项目；没有它，Ruyix 直接跑在你的电脑上。
 
 DSH（DeepSeek Harness）是 DeepSeek 的产品；Ruyix 是独立项目，不是 DeepSeek 官方出品。
 

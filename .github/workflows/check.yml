@@ -1,5 +1,6 @@
-# Every package's build and self-checks on Windows, macOS and Linux (tools/check-all.mjs), and the Node installer's
-# first steps. React for the client checks is installed the way dsh ships it (react-dom 19).
+# Every package's build and self-checks on macOS and Linux (tools/check-all.mjs), and the Node installer's first steps.
+# Not Windows yet: several parts talk over Unix sockets, and its checks fail there (first public CI run, 2026-11-08).
+# React for the client checks is installed the way dsh ships it (react-dom 19).
 name: check
 on:
   push:
@@ -11,7 +12,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-latest, ubuntu-latest, macos-latest]
+        os: [ubuntu-latest, macos-latest]
     runs-on: ${{ matrix.os }}
     timeout-minutes: 40
     steps:
